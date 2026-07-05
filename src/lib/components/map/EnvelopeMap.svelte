@@ -33,6 +33,8 @@
 
 	const emptyMessage = $derived.by((): { title: string; body: string } | null => {
 		if (polyAtMax.length >= 3) return null;
+		// Rental income opens options the income-only baseline doesn't — don't contradict the overlay.
+		if (showRental && optimisticPoly.length >= 3) return null;
 		if (incomeBelowExpenses) {
 			return { title: 'Income doesn’t cover expenses', body: 'The map needs a monthly surplus — income minus expenses is what funds any housing payment.' };
 		}
