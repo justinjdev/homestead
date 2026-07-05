@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { comboKey, defaultState, validateState } from './schema';
+import { comboKey, defaultState, isHttpUrl, validateState } from './schema';
 
 describe('validateState', () => {
 	it('accepts defaultState()', () => {
@@ -209,5 +209,41 @@ describe('defaultState', () => {
 
 	it('has timeMonths 0', () => {
 		expect(defaultState().timeMonths).toBe(0);
+	});
+});
+
+describe('isHttpUrl', () => {
+	it('accepts http and https', () => {
+		expect(isHttpUrl('http://example.com')).toBe(true);
+		expect(isHttpUrl('https://landwatch.com/listing/123')).toBe(true);
+	});
+	it('rejects other schemes, malformed input, and non-strings', () => {
+		expect(isHttpUrl('javascript:alert(1)')).toBe(false);
+		expect(isHttpUrl('data:text/html,x')).toBe(false);
+		expect(isHttpUrl('ftp://example.com')).toBe(false);
+		expect(isHttpUrl('not a url')).toBe(false);
+		expect(isHttpUrl('')).toBe(false);
+		expect(isHttpUrl(42)).toBe(false);
+		expect(isHttpUrl(undefined)).toBe(false);
+	});
+});
+
+describe('url validation in state', () => {
+	it('accepts a parcel with a valid https url', () => {
+		const s = defaultState();
+		s.parcels = [{ id: 'p1', name: 'Ridge', landPrice: 80_000, url: 'https://landwatch.com/x' }];
+		expect(validateState(s)).toBe(true);
+	});
+	it('rejects a parcel with a javascript: url', () => {
+		const s = defaultState();
+		s.parcels = [{ id: 'p1', name: 'Ridge', landPrice: 80_000, url: 'javascript:alert(1)' }];
+		expect(validateState(s)).toBe(false);
+	});
+	it('accepts a home with a valid url, rejects a data: url', () => {
+		const s = defaultState();
+		s.homes = [{ id: 'h1', name: 'Escape', homeCost: 100_000, siteWork: 40_000, url: 'https://x.com' }];
+		expect(validateState(s)).toBe(true);
+		s.homes = [{ id: 'h1', name: 'Escape', homeCost: 100_000, siteWork: 40_000, url: 'data:x' }];
+		expect(validateState(s)).toBe(false);
 	});
 });

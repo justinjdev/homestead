@@ -9,9 +9,30 @@
 		toggleMuted
 	} from '$lib/state/store.svelte';
 	import { evaluate } from '$lib/model';
+	import MoneyInput from './MoneyInput.svelte';
+	import { isHttpUrl } from '$lib/state/schema';
 
 	let newParcel = $state({ name: '', landPrice: 0 });
 	let newHome = $state({ name: '', homeCost: 0, siteWork: 0 });
+	let editingUrlId = $state<string | null>(null);
+	let urlDraft = $state('');
+	const draftInvalid = $derived(urlDraft.trim() !== '' && !isHttpUrl(urlDraft.trim()));
+
+	function openUrlEditor(id: string, current: string | undefined) {
+		editingUrlId = id;
+		urlDraft = current ?? '';
+	}
+	function commitUrl(item: { url?: string }) {
+		const t = urlDraft.trim();
+		if (t === '') {
+			item.url = undefined;
+			editingUrlId = null;
+		} else if (isHttpUrl(t)) {
+			item.url = t;
+			editingUrlId = null;
+		}
+		// invalid draft: keep the editor open, retain the draft, show invalid border
+	}
 
 	function submitParcel(e: SubmitEvent) {
 		e.preventDefault();
@@ -55,45 +76,80 @@
 <section class="dock">
 	<div class="col">
 		<h3>Parcels</h3>
+		<p class="cols">name · price</p>
 		<ul class="rows">
 			{#each app.parcels as parcel (parcel.id)}
 				<li class="row">
 					<input class="name" type="text" bind:value={parcel.name} aria-label="Parcel name" />
-					<input
-						class="num price"
-						type="number"
-						min="0"
-						step="1000"
-						bind:value={parcel.landPrice}
-						aria-label="Land price"
-					/>
+					<MoneyInput class="compact" bind:value={parcel.landPrice} ariaLabel="Land price" />
+					{#if parcel.url}
+						<a class="link open" href={parcel.url} target="_blank" rel="noopener noreferrer" title={parcel.url} aria-label="Open parcel listing">↗</a>
+						<button class="link edit" onclick={() => openUrlEditor(parcel.id, parcel.url)} aria-label="Edit parcel link">edit</button>
+					{:else}
+						<button class="link add" onclick={() => openUrlEditor(parcel.id, parcel.url)} aria-label="Add parcel link">link</button>
+					{/if}
 					<button class="remove" onclick={() => removeParcel(parcel.id)} aria-label="Remove parcel">×</button>
 				</li>
+				{#if editingUrlId === parcel.id}
+					<li class="url-editor">
+						<input
+							class="url"
+							class:invalid={draftInvalid}
+							type="url"
+							placeholder="https://…"
+							bind:value={urlDraft}
+							onblur={() => commitUrl(parcel)}
+							onkeydown={(e) => { if (e.key === 'Enter') commitUrl(parcel); }}
+							aria-label="Listing URL"
+						/>
+					</li>
+				{/if}
 			{/each}
 		</ul>
 		<form class="add" onsubmit={submitParcel}>
 			<input class="name" type="text" placeholder="New parcel" bind:value={newParcel.name} />
-			<input class="num price" type="number" min="0" step="1000" placeholder="price" bind:value={newParcel.landPrice} />
+			<MoneyInput class="compact" bind:value={newParcel.landPrice} placeholder="price" ariaLabel="New parcel price" />
 			<button type="submit" class="add-btn" aria-label="Add parcel">+</button>
 		</form>
 	</div>
 
 	<div class="col">
 		<h3>Homes</h3>
+		<p class="cols">name · cost · site work</p>
 		<ul class="rows">
 			{#each app.homes as home (home.id)}
 				<li class="row">
 					<input class="name" type="text" bind:value={home.name} aria-label="Home name" />
-					<input class="num price" type="number" min="0" step="1000" bind:value={home.homeCost} aria-label="Home cost" />
-					<input class="num price" type="number" min="0" step="1000" bind:value={home.siteWork} aria-label="Site work" />
+					<MoneyInput class="compact" bind:value={home.homeCost} ariaLabel="Home cost" />
+					<MoneyInput class="compact" bind:value={home.siteWork} ariaLabel="Site work" />
+					{#if home.url}
+						<a class="link open" href={home.url} target="_blank" rel="noopener noreferrer" title={home.url} aria-label="Open home listing">↗</a>
+						<button class="link edit" onclick={() => openUrlEditor(home.id, home.url)} aria-label="Edit home link">edit</button>
+					{:else}
+						<button class="link add" onclick={() => openUrlEditor(home.id, home.url)} aria-label="Add home link">link</button>
+					{/if}
 					<button class="remove" onclick={() => removeHome(home.id)} aria-label="Remove home">×</button>
 				</li>
+				{#if editingUrlId === home.id}
+					<li class="url-editor">
+						<input
+							class="url"
+							class:invalid={draftInvalid}
+							type="url"
+							placeholder="https://…"
+							bind:value={urlDraft}
+							onblur={() => commitUrl(home)}
+							onkeydown={(e) => { if (e.key === 'Enter') commitUrl(home); }}
+							aria-label="Listing URL"
+						/>
+					</li>
+				{/if}
 			{/each}
 		</ul>
 		<form class="add" onsubmit={submitHome}>
 			<input class="name" type="text" placeholder="New home" bind:value={newHome.name} />
-			<input class="num price" type="number" min="0" step="1000" placeholder="cost" bind:value={newHome.homeCost} />
-			<input class="num price" type="number" min="0" step="1000" placeholder="site" bind:value={newHome.siteWork} />
+			<MoneyInput class="compact" bind:value={newHome.homeCost} placeholder="cost" ariaLabel="New home cost" />
+			<MoneyInput class="compact" bind:value={newHome.siteWork} placeholder="site" ariaLabel="New home site work" />
 			<button type="submit" class="add-btn" aria-label="Add home">+</button>
 		</form>
 	</div>
@@ -136,6 +192,13 @@
 		font-variant-caps: small-caps;
 		letter-spacing: 0.08em;
 	}
+	.cols {
+		margin: -0.35rem 0 var(--space-2);
+		font-family: var(--font-body);
+		font-size: 0.68rem;
+		letter-spacing: 0.04em;
+		color: var(--ink-faint);
+	}
 	.rows,
 	.chips {
 		list-style: none;
@@ -167,8 +230,7 @@
 		flex: 1;
 		min-width: 0;
 	}
-	.num,
-	.price {
+	.num {
 		font-family: var(--font-figures);
 		text-align: right;
 		width: 5.5em;
@@ -257,5 +319,47 @@
 		.dock {
 			grid-template-columns: 1fr;
 		}
+	}
+	.link {
+		font-family: var(--font-figures);
+		font-size: 0.72rem;
+		line-height: 1;
+		height: 1.8em;
+		padding: 0 var(--space-2);
+		display: inline-flex;
+		align-items: center;
+		color: var(--ink-faint);
+		background: var(--paper);
+		border: var(--hairline);
+		border-radius: var(--radius);
+		text-decoration: none;
+		cursor: pointer;
+		flex: none;
+	}
+	.link.open {
+		color: var(--edge-rental);
+		border-color: var(--edge-rental);
+		font-weight: 600;
+	}
+	.link.add:hover,
+	.link.edit:hover {
+		color: var(--ink);
+	}
+	.url-editor {
+		display: flex;
+		padding: 0 0 var(--space-1);
+	}
+	.url-editor .url {
+		flex: 1;
+		font-family: var(--font-body);
+		font-size: 0.78rem;
+		color: var(--ink);
+		background: var(--paper);
+		border: var(--hairline);
+		border-radius: var(--radius);
+		padding: var(--space-1) var(--space-2);
+	}
+	.url-editor .url.invalid {
+		border-color: var(--flag);
 	}
 </style>

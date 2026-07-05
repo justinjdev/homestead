@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { app } from '$lib/state/store.svelte';
 	import { defaultState } from '$lib/state/schema';
+	import MoneyInput from './MoneyInput.svelte';
 
 	const defaults = defaultState().finances;
 
@@ -31,27 +32,27 @@
 	<div class="fields">
 		<label>
 			<span>Take-home / mo</span>
-			<input class="num" type="number" min="0" step="100" bind:value={app.finances.incomeMonthly} />
+			<MoneyInput bind:value={app.finances.incomeMonthly} step={100} ariaLabel="Take-home per month" />
 		</label>
 		<label>
 			<span>Expenses / mo</span>
-			<input class="num" type="number" min="0" step="100" bind:value={app.finances.expensesMonthly} />
+			<MoneyInput bind:value={app.finances.expensesMonthly} step={100} ariaLabel="Expenses per month" />
 		</label>
 		<label>
 			<span>Existing debt / mo</span>
-			<input class="num" type="number" min="0" step="50" bind:value={app.finances.debtMonthly} />
+			<MoneyInput bind:value={app.finances.debtMonthly} step={50} ariaLabel="Existing debt per month" />
 		</label>
 		<label>
 			<span>Cash on hand</span>
-			<input class="num" type="number" min="0" step="1000" bind:value={app.finances.cashOnHand} />
+			<MoneyInput bind:value={app.finances.cashOnHand} step={1000} ariaLabel="Cash on hand" />
 		</label>
 		<label>
 			<span>Savings / mo</span>
-			<input class="num" type="number" min="0" step="100" bind:value={app.finances.savingsMonthly} />
+			<MoneyInput bind:value={app.finances.savingsMonthly} step={100} ariaLabel="Savings per month" />
 		</label>
 		<label>
 			<span>Rental income / mo</span>
-			<input class="num" type="number" min="0" step="50" bind:value={app.finances.rentalMonthly} />
+			<MoneyInput bind:value={app.finances.rentalMonthly} step={50} ariaLabel="Rental income per month" />
 		</label>
 		<label class="comfort">
 			<span>Comfort threshold <em class="num">{comfortPct}%</em></span>
@@ -108,16 +109,6 @@
 	label em {
 		font-style: normal;
 		color: var(--ink);
-	}
-	input[type='number'] {
-		font-family: var(--font-figures);
-		font-size: 0.95rem;
-		color: var(--ink);
-		background: var(--paper);
-		border: var(--hairline);
-		border-radius: var(--radius);
-		padding: var(--space-1) var(--space-2);
-		width: 100%;
 	}
 	input[type='range'] {
 		accent-color: var(--edge-cash);
