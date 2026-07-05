@@ -15,7 +15,7 @@ export default defineConfig({
 
 			// GitHub Pages serves the site under /homestead; CI sets BASE_PATH.
 			paths: {
-				base: process.env.BASE_PATH ?? ''
+				base: (process.env.BASE_PATH ?? '') as '' | `/${string}`
 			}
 		})
 	]
