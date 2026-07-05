@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { capacity, capacityBreakdown, evaluate } from './evaluate';
+import { capacity, capacityBreakdown, countedRentMonthly, evaluate } from './evaluate';
 import { comboCosts } from './costs';
 import type { FinanceProfile, HomeOption, Parcel, Presets, Stress } from './types';
 
@@ -81,6 +81,15 @@ describe('capacityBreakdown', () => {
 		const b = capacityBreakdown(f, zeroStress);
 		expect(b.binding).toBe('solvency');
 		expect(b.capacity).toBe(800);
+	});
+});
+
+describe('countedRentMonthly', () => {
+	it('counts 75% of rentalMonthly', () => {
+		expect(countedRentMonthly({ ...finances, rentalMonthly: 2000 })).toBe(1500);
+	});
+	it('is 0 when rentalMonthly is 0', () => {
+		expect(countedRentMonthly(finances)).toBe(0);
 	});
 });
 

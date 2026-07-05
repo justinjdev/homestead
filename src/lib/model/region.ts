@@ -140,7 +140,8 @@ export function regionConstraints(
 	presets: Presets,
 	stress: Stress,
 	tMonths: number,
-	siteWorkFrac = SITE_WORK_FRAC
+	siteWorkFrac = SITE_WORK_FRAC,
+	rentalOffsetMonthly = 0
 ): RegionConstraints {
 	const { land, home, closingFrac, taxAnnualPct, insuranceMonthly } = presets;
 	const s = siteWorkFrac;
@@ -161,7 +162,7 @@ export function regionConstraints(
 	// Monthly constraint: a2*x + b2*y <= c2
 	// capacity may be ≤ insuranceMonthly, producing c2 ≤ 0 → empty region
 	const cap = capacity(finances, stress);
-	const c2 = cap - insuranceMonthly;
+	const c2 = cap - insuranceMonthly + rentalOffsetMonthly;
 	const a2 = (1 - land.downFrac) * kL + taxM;
 	const b2 = (1 - s) * ((1 - home.downFrac) * kH + taxM);
 
@@ -179,6 +180,7 @@ export function regionConstraints(
  * @param stress       - Stress parameters (applied to both constraints)
  * @param tMonths      - Time horizon in months (grows cash constraint)
  * @param siteWorkFrac - Share of improvement budget y that is site work (default 0.25)
+ * @param rentalOffsetMonthly - Monthly rental income offset (added to monthly capacity)
  * @returns            - CCW polygon in [landPrice, improvementBudget] space; [] if empty
  */
 export function region(
@@ -186,9 +188,10 @@ export function region(
 	presets: Presets,
 	stress: Stress,
 	tMonths: number,
-	siteWorkFrac = SITE_WORK_FRAC
+	siteWorkFrac = SITE_WORK_FRAC,
+	rentalOffsetMonthly = 0
 ): Polygon {
-	const { cash, monthly } = regionConstraints(finances, presets, stress, tMonths, siteWorkFrac);
+	const { cash, monthly } = regionConstraints(finances, presets, stress, tMonths, siteWorkFrac, rentalOffsetMonthly);
 	const poly = clipQuadrant([cash, monthly]);
 	return normalizePolygon(poly);
 }
