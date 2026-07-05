@@ -25,6 +25,7 @@ const finances: FinanceProfile = {
 	savingsMonthly: 1000,
 	comfortFrac: 0.30,
 	backEndFrac: 0.43,
+	rentalMonthly: 0,
 };
 
 describe('capacity', () => {
@@ -50,6 +51,7 @@ describe('capacityBreakdown', () => {
 	const reported: FinanceProfile = {
 		incomeMonthly: 12_916, expensesMonthly: 1_378, debtMonthly: 4_266,
 		cashOnHand: 90_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+		rentalMonthly: 0,
 	};
 
 	it('reported profile: back-end binds at +$1,287.88 (was −$391)', () => {
@@ -198,6 +200,7 @@ describe('evaluate', () => {
 		const f: FinanceProfile = {
 			incomeMonthly: 9_000, expensesMonthly: 3_000, debtMonthly: 1_500,
 			cashOnHand: 200_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+			rentalMonthly: 0,
 		};
 		const ev = evaluate(f, parcel, home, defaultPresets, zeroStress, 0);
 		expect(ev.monthlyOk).toBe(true);

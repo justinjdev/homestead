@@ -21,6 +21,7 @@ const finances: FinanceProfile = {
 	savingsMonthly: 1000,
 	comfortFrac: 0.30,
 	backEndFrac: 0.43,
+	rentalMonthly: 0,
 };
 
 describe('clipQuadrant', () => {
@@ -173,6 +174,7 @@ describe('region', () => {
 		const f: FinanceProfile = {
 			incomeMonthly: 12_916, expensesMonthly: 1_378, debtMonthly: 4_266,
 			cashOnHand: 90_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+			rentalMonthly: 0,
 		};
 		// capacity ≈ 1287.88 > insurance 100 → the monthly constraint admits area
 		const poly = region(f, defaultPresets, zeroStress, 0);

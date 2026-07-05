@@ -94,6 +94,26 @@ describe('validateState', () => {
 		expect(validateState(s)).toBe(true);
 	});
 
+	it('rejects negative rentalMonthly', () => {
+		const s = defaultState();
+		s.finances.rentalMonthly = -1;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('rejects finances missing rentalMonthly', () => {
+		const s = defaultState();
+		delete (s.finances as Partial<typeof s.finances>).rentalMonthly;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('accepts rentalMonthly === 0 and positive', () => {
+		const s = defaultState();
+		s.finances.rentalMonthly = 0;
+		expect(validateState(s)).toBe(true);
+		s.finances.rentalMonthly = 2000;
+		expect(validateState(s)).toBe(true);
+	});
+
 	it('rejects downFrac > 1', () => {
 		const s = defaultState();
 		s.presets.land.downFrac = 1.5;
