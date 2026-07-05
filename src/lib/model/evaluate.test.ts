@@ -190,4 +190,21 @@ describe('evaluate', () => {
 		// stressed income = 6000 - 0 = 6000; debtMonthly = 0
 		expect(ev.pctOfIncome).toBeCloseTo(ev.monthlyCost / 6000, 6);
 	});
+
+	it('(f) income-drop margin respects the back-end DTI branch', () => {
+		// Debt profile where the back-end branch is the binding one on the margin,
+		// AND the combo is affordable at t=0 so a positive margin exists.
+		// (monthlyCost ≈ 1710.98; capacity(9000) = min(2700, 2370, 4500) = 2370 > cost.)
+		const f: FinanceProfile = {
+			incomeMonthly: 9_000, expensesMonthly: 3_000, debtMonthly: 1_500,
+			cashOnHand: 200_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+		};
+		const ev = evaluate(f, parcel, home, defaultPresets, zeroStress, 0);
+		expect(ev.monthlyOk).toBe(true);
+		expect(ev.margins.incomeDropMonthly).toBeGreaterThan(0);
+		// At the margin d, capacity(I - d) meets monthlyCost exactly (the binding point),
+		// and the back-end branch is the one that binds (d ≈ 1532.6).
+		const stressedCap = capacity(f, { ...zeroStress, incomeDropMonthly: ev.margins.incomeDropMonthly });
+		expect(stressedCap).toBeCloseTo(ev.monthlyCost, 2);
+	});
 });

@@ -89,15 +89,18 @@ export function evaluate(
 	const cashSlack = cashAvailable - costs.cashNeeded;
 	const siteWorkOverrunFrac = home.siteWork > 0 ? cashSlack / home.siteWork : null;
 
-	// incomeDropMonthly: max additional drop d such that capacity(I - d) >= monthlyCost
-	// capacity is min(comfortFrac*(I-d), (I-d)-expenses) - debt >= monthlyCost
-	// Solve both branches and take the minimum positive result:
-	//   branch 1: comfortFrac*(I-d) - debt >= monthlyCost  → d <= (comfortFrac*I - debt - monthlyCost)/comfortFrac
-	//   branch 2: (I-d) - expenses - debt >= monthlyCost   → d <= I - expenses - debt - monthlyCost
+	// incomeDropMonthly: max additional drop d such that capacity(I - d) >= monthlyCost.
+	// capacity = min(comfortFrac*(I-d), backEndFrac*(I-d) - debt, (I-d) - expenses - debt).
+	// Each term ≥ monthlyCost (mc) gives an upper bound on d; take the min:
+	//   front-end:  comfortFrac*(I-d) >= mc         → d <= I - mc/comfortFrac
+	//   back-end:   backEndFrac*(I-d) - debt >= mc  → d <= I - (mc + debt)/backEndFrac
+	//   solvency:   (I-d) - expenses - debt >= mc   → d <= I - expenses - debt - mc
 	const I = stressedIncome;
-	const d1 = (finances.comfortFrac * I - finances.debtMonthly - costs.monthlyCost) / finances.comfortFrac;
-	const d2 = I - finances.expensesMonthly - finances.debtMonthly - costs.monthlyCost;
-	const incomeDropMonthly = Math.max(0, Math.min(d1, d2));
+	const mc = costs.monthlyCost;
+	const dFront = I - mc / finances.comfortFrac;
+	const dBack = I - (mc + finances.debtMonthly) / finances.backEndFrac;
+	const dSolvency = I - finances.expensesMonthly - finances.debtMonthly - mc;
+	const incomeDropMonthly = Math.max(0, Math.min(dFront, dBack, dSolvency));
 
 	// rateRisePct: max additional rate rise Δ where monthlyCost(rate + Δ) <= capacity
 	// null if both loans are cash purchases (downFrac === 1)
