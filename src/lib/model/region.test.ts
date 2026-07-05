@@ -81,7 +81,11 @@ describe('region', () => {
 		const c1 = cashAvailable;
 
 		// Monthly constraint: a2*x + b2*y <= c2
-		const cap = Math.min(finances.comfortFrac * finances.incomeMonthly, finances.incomeMonthly - finances.expensesMonthly) - finances.debtMonthly;
+		const cap = Math.min(
+			finances.comfortFrac * finances.incomeMonthly,
+			finances.backEndFrac * finances.incomeMonthly - finances.debtMonthly,
+			finances.incomeMonthly - finances.expensesMonthly - finances.debtMonthly
+		);
 		const a2 = (1 - land.downFrac) * landFactor + taxM;
 		const b2 = (1 - s) * ((1 - home.downFrac) * homeFactor + taxM);
 		const c2 = cap - insuranceMonthly;
@@ -146,7 +150,7 @@ describe('region', () => {
 		expect(onLine(cash) || onLine(monthly)).toBe(true);
 	});
 
-	it('(e) polygon order is CCW, starting near [0,0]', () => {
+	it('polygon order is CCW, starting near [0,0]', () => {
 		const poly = region(finances, defaultPresets, zeroStress, 0);
 		expect(poly.length).toBeGreaterThan(0);
 
@@ -163,5 +167,15 @@ describe('region', () => {
 			area += x1 * y2 - x2 * y1;
 		}
 		expect(area).toBeGreaterThan(0);
+	});
+
+	it('(e) high income + high debt now yields a non-empty region', () => {
+		const f: FinanceProfile = {
+			incomeMonthly: 12_916, expensesMonthly: 1_378, debtMonthly: 4_266,
+			cashOnHand: 90_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+		};
+		// capacity ≈ 1287.88 > insurance 100 → the monthly constraint admits area
+		const poly = region(f, defaultPresets, zeroStress, 0);
+		expect(poly.length).toBeGreaterThan(0);
 	});
 });

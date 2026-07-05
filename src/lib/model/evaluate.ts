@@ -1,18 +1,42 @@
 import { comboCosts } from './costs';
 import type { Evaluation, FinanceProfile, HomeOption, Parcel, Presets, Stress } from './types';
 
+export type BindingConstraint = 'front-end' | 'back-end' | 'solvency';
+
+export interface CapacityBreakdown {
+	frontEnd: number; // comfortFrac × I           (housing payment alone)
+	backEnd: number;  // backEndFrac × I − debt     (housing payment + existing debt)
+	solvency: number; // I − expenses − debt        (never cash-flow negative)
+	capacity: number; // min(frontEnd, backEnd, solvency)
+	binding: BindingConstraint; // which term equals capacity (front-end wins ties)
+}
+
+/**
+ * Two-tier DTI breakdown of monthly housing capacity.
+ *
+ *   I = incomeMonthly − incomeDropMonthly              (stressed take-home)
+ *   frontEnd = comfortFrac × I                         (front-end DTI: housing only)
+ *   backEnd  = backEndFrac × I − debtMonthly           (back-end DTI: housing + debt)
+ *   solvency = I − expensesMonthly − debtMonthly       (cash-flow floor)
+ *   capacity = min(frontEnd, backEnd, solvency)
+ */
+export function capacityBreakdown(finances: FinanceProfile, stress: Stress): CapacityBreakdown {
+	const I = finances.incomeMonthly - stress.incomeDropMonthly;
+	const frontEnd = finances.comfortFrac * I;
+	const backEnd = finances.backEndFrac * I - finances.debtMonthly;
+	const solvency = I - finances.expensesMonthly - finances.debtMonthly;
+	const capacity = Math.min(frontEnd, backEnd, solvency);
+	const binding: BindingConstraint =
+		capacity === frontEnd ? 'front-end' : capacity === backEnd ? 'back-end' : 'solvency';
+	return { frontEnd, backEnd, solvency, capacity, binding };
+}
+
 /**
  * Monthly capacity: how much can be spent on housing loans, tax, and insurance.
- *
- * Formula:
- *   stressed income I = incomeMonthly - incomeDropMonthly
- *   capacity = min(comfortFrac * I, I - expensesMonthly) - debtMonthly
- *
- * May be ≤ 0 when expenses exceed income or debt is too high.
+ * See capacityBreakdown for the formula. May be ≤ 0 when debt or expenses are too high.
  */
 export function capacity(finances: FinanceProfile, stress: Stress): number {
-	const I = finances.incomeMonthly - stress.incomeDropMonthly;
-	return Math.min(finances.comfortFrac * I, I - finances.expensesMonthly) - finances.debtMonthly;
+	return capacityBreakdown(finances, stress).capacity;
 }
 
 /**

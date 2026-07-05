@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { capacity, evaluate } from './evaluate';
+import { capacity, capacityBreakdown, evaluate } from './evaluate';
 import { comboCosts } from './costs';
 import type { FinanceProfile, HomeOption, Parcel, Presets, Stress } from './types';
 
@@ -28,21 +28,57 @@ const finances: FinanceProfile = {
 };
 
 describe('capacity', () => {
-	it('returns min(comfortFrac*I, I - expenses) - debt', () => {
-		// min(0.30 * 6000, 6000 - 3000) - 0 = min(1800, 3000) - 0 = 1800
+	it('returns min(front-end, back-end, solvency)', () => {
+		// min(0.30*6000, 0.43*6000 - 0, 6000 - 3000 - 0) = min(1800, 2580, 3000) = 1800
 		expect(capacity(finances, zeroStress)).toBe(1800);
 	});
 
 	it('applies income drop stress', () => {
 		const stress: Stress = { ...zeroStress, incomeDropMonthly: 500 };
-		// I = 5500, min(0.30 * 5500, 5500 - 3000) - 0 = min(1650, 2500) = 1650
+		// I = 5500 → min(1650, 2365, 2500) = 1650
 		expect(capacity(finances, stress)).toBe(1650);
 	});
 
-	it('returns negative when expenses exceed income (binding monthly constraint)', () => {
+	it('returns negative when expenses exceed income (solvency binds)', () => {
 		const broke: FinanceProfile = { ...finances, expensesMonthly: 7000 };
-		// min(0.30 * 6000, 6000 - 7000) - 0 = min(1800, -1000) = -1000
+		// min(1800, 2580, 6000 - 7000 - 0) = min(1800, 2580, -1000) = -1000
 		expect(capacity(broke, zeroStress)).toBe(-1000);
+	});
+});
+
+describe('capacityBreakdown', () => {
+	const reported: FinanceProfile = {
+		incomeMonthly: 12_916, expensesMonthly: 1_378, debtMonthly: 4_266,
+		cashOnHand: 90_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+	};
+
+	it('reported profile: back-end binds at +$1,287.88 (was −$391)', () => {
+		const b = capacityBreakdown(reported, zeroStress);
+		expect(b.frontEnd).toBeCloseTo(3874.8, 2);   // 0.30 * 12916
+		expect(b.backEnd).toBeCloseTo(1287.88, 2);   // 0.43 * 12916 - 4266
+		expect(b.solvency).toBeCloseTo(7272, 2);     // 12916 - 1378 - 4266
+		expect(b.capacity).toBeCloseTo(1287.88, 2);
+		expect(b.binding).toBe('back-end');
+	});
+
+	it('capacity() returns the same min', () => {
+		expect(capacity(reported, zeroStress)).toBeCloseTo(1287.88, 2);
+	});
+
+	it('front-end binds with low debt and low expenses', () => {
+		const f: FinanceProfile = { ...finances, expensesMonthly: 1_000 };
+		// front 1800, back 2580, solvency 5000
+		const b = capacityBreakdown(f, zeroStress);
+		expect(b.binding).toBe('front-end');
+		expect(b.capacity).toBe(1800);
+	});
+
+	it('solvency binds when expenses are high', () => {
+		const f: FinanceProfile = { ...finances, expensesMonthly: 5_200 };
+		// front 1800, back 2580, solvency 800
+		const b = capacityBreakdown(f, zeroStress);
+		expect(b.binding).toBe('solvency');
+		expect(b.capacity).toBe(800);
 	});
 });
 
