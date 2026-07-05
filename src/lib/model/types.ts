@@ -5,7 +5,8 @@ export interface FinanceProfile {
 	debtMonthly: number;      // existing obligations $/mo
 	cashOnHand: number;
 	savingsMonthly: number;
-	comfortFrac: number;      // max share of income for all-in housing, default 0.30
+	comfortFrac: number;      // front-end DTI: max share of income for the housing payment alone, default 0.30
+	backEndFrac: number;      // back-end DTI: max share of income for housing payment + existing debt, default 0.43
 }
 
 export interface LoanTerms {

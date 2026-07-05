@@ -70,6 +70,30 @@ describe('validateState', () => {
 		expect(validateState(s)).toBe(true);
 	});
 
+	it('rejects backEndFrac > 1', () => {
+		const s = defaultState();
+		s.finances.backEndFrac = 1.5;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('rejects backEndFrac === 0 (would divide by zero downstream)', () => {
+		const s = defaultState();
+		s.finances.backEndFrac = 0;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('rejects finances missing backEndFrac', () => {
+		const s = defaultState();
+		delete (s.finances as Partial<typeof s.finances>).backEndFrac;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('accepts backEndFrac === 1', () => {
+		const s = defaultState();
+		s.finances.backEndFrac = 1;
+		expect(validateState(s)).toBe(true);
+	});
+
 	it('rejects downFrac > 1', () => {
 		const s = defaultState();
 		s.presets.land.downFrac = 1.5;

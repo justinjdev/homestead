@@ -24,6 +24,7 @@ const finances: FinanceProfile = {
 	cashOnHand: 90_000,
 	savingsMonthly: 1000,
 	comfortFrac: 0.30,
+	backEndFrac: 0.43,
 };
 
 describe('capacity', () => {

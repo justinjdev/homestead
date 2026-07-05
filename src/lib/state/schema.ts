@@ -23,7 +23,8 @@ export function defaultState(): AppState {
 			debtMonthly: 0,
 			cashOnHand: 40_000,
 			savingsMonthly: 1000,
-			comfortFrac: 0.30
+			comfortFrac: 0.30,
+			backEndFrac: 0.43
 		},
 		presets: {
 			land: { downFrac: 0.25, annualRatePct: 8.0, termMonths: 180 },
@@ -73,7 +74,12 @@ function isFinancesValid(f: unknown): f is FinanceProfile {
 		typeof o.comfortFrac === 'number' &&
 		Number.isFinite(o.comfortFrac) &&
 		o.comfortFrac > 0 &&
-		o.comfortFrac <= 1
+		o.comfortFrac <= 1 &&
+		// Strictly > 0: backEndFrac is a divisor in the income-drop margin.
+		typeof o.backEndFrac === 'number' &&
+		Number.isFinite(o.backEndFrac) &&
+		o.backEndFrac > 0 &&
+		o.backEndFrac <= 1
 	);
 }
 

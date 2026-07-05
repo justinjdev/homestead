@@ -8,7 +8,8 @@
 			"debtMonthly": 0,
 			"cashOnHand": 90000,
 			"savingsMonthly": 1000,
-			"comfortFrac": 0.3
+			"comfortFrac": 0.3,
+			"backEndFrac": 0.43
 		},
 		"presets": {
 			"land": { "downFrac": 0.25, "annualRatePct": 8.0, "termMonths": 180 },
