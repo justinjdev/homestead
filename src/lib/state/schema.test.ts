@@ -55,6 +55,77 @@ describe('validateState', () => {
 		s.homes = [{ id: 'h1', name: 'Test', siteWork: 0 } as never];
 		expect(validateState(s)).toBe(false);
 	});
+
+	// Upper/edge bounds — a crafted hash must not inject out-of-range values
+	// into the money math (e.g. comfortFrac 0 → ÷0 in evaluate).
+	it('rejects comfortFrac === 0 (would divide by zero downstream)', () => {
+		const s = defaultState();
+		s.finances.comfortFrac = 0;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('accepts comfortFrac === 1', () => {
+		const s = defaultState();
+		s.finances.comfortFrac = 1;
+		expect(validateState(s)).toBe(true);
+	});
+
+	it('rejects downFrac > 1', () => {
+		const s = defaultState();
+		s.presets.land.downFrac = 1.5;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('accepts downFrac === 1 (cash purchase)', () => {
+		const s = defaultState();
+		s.presets.land.downFrac = 1;
+		s.presets.home.downFrac = 1;
+		expect(validateState(s)).toBe(true);
+	});
+
+	it('rejects timeMonths > 24', () => {
+		const s = defaultState();
+		s.timeMonths = 25;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('accepts timeMonths === 24', () => {
+		const s = defaultState();
+		s.timeMonths = 24;
+		expect(validateState(s)).toBe(true);
+	});
+
+	it('rejects stress.rateDeltaPct > 10', () => {
+		const s = defaultState();
+		s.stress.rateDeltaPct = 11;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('rejects stress.siteWorkOverrunFrac > 1', () => {
+		const s = defaultState();
+		s.stress.siteWorkOverrunFrac = 1.5;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('rejects closingFrac > 1', () => {
+		const s = defaultState();
+		s.presets.closingFrac = 1.5;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('rejects taxAnnualPct > 100', () => {
+		const s = defaultState();
+		s.presets.taxAnnualPct = 150;
+		expect(validateState(s)).toBe(false);
+	});
+
+	it('accepts the stressed fixture bounds (rateDeltaPct 2, siteWorkOverrunFrac 0.5)', () => {
+		const s = defaultState();
+		s.stress.rateDeltaPct = 2;
+		s.stress.siteWorkOverrunFrac = 0.5;
+		s.timeMonths = 12;
+		expect(validateState(s)).toBe(true);
+	});
 });
 
 describe('comboKey', () => {

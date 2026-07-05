@@ -54,6 +54,12 @@ function isFiniteNonNeg(n: unknown): n is number {
 	return typeof n === 'number' && Number.isFinite(n) && n >= 0;
 }
 
+// Finite number within [min, max] inclusive. Used to keep a crafted URL hash
+// from injecting out-of-range values into the money math (see model docs).
+function inRange(n: unknown, min: number, max: number): n is number {
+	return typeof n === 'number' && Number.isFinite(n) && n >= min && n <= max;
+}
+
 function isFinancesValid(f: unknown): f is FinanceProfile {
 	if (typeof f !== 'object' || f === null) return false;
 	const o = f as Record<string, unknown>;
@@ -63,9 +69,10 @@ function isFinancesValid(f: unknown): f is FinanceProfile {
 		isFiniteNonNeg(o.debtMonthly) &&
 		isFiniteNonNeg(o.cashOnHand) &&
 		isFiniteNonNeg(o.savingsMonthly) &&
+		// Strictly > 0: comfortFrac is a divisor in evaluate().
 		typeof o.comfortFrac === 'number' &&
 		Number.isFinite(o.comfortFrac) &&
-		o.comfortFrac >= 0 &&
+		o.comfortFrac > 0 &&
 		o.comfortFrac <= 1
 	);
 }
@@ -74,7 +81,7 @@ function isLoanTermsValid(lt: unknown): boolean {
 	if (typeof lt !== 'object' || lt === null) return false;
 	const o = lt as Record<string, unknown>;
 	return (
-		isFiniteNonNeg(o.downFrac) &&
+		inRange(o.downFrac, 0, 1) &&
 		isFiniteNonNeg(o.annualRatePct) &&
 		isFiniteNonNeg(o.termMonths)
 	);
@@ -86,8 +93,8 @@ function isPresetsValid(p: unknown): p is Presets {
 	return (
 		isLoanTermsValid(o.land) &&
 		isLoanTermsValid(o.home) &&
-		isFiniteNonNeg(o.closingFrac) &&
-		isFiniteNonNeg(o.taxAnnualPct) &&
+		inRange(o.closingFrac, 0, 1) &&
+		inRange(o.taxAnnualPct, 0, 100) &&
 		isFiniteNonNeg(o.insuranceMonthly)
 	);
 }
@@ -118,8 +125,8 @@ function isStressValid(s: unknown): s is Stress {
 	if (typeof s !== 'object' || s === null) return false;
 	const o = s as Record<string, unknown>;
 	return (
-		isFiniteNonNeg(o.rateDeltaPct) &&
-		isFiniteNonNeg(o.siteWorkOverrunFrac) &&
+		inRange(o.rateDeltaPct, 0, 10) &&
+		inRange(o.siteWorkOverrunFrac, 0, 1) &&
 		isFiniteNonNeg(o.incomeDropMonthly)
 	);
 }
@@ -143,7 +150,7 @@ export function validateState(x: unknown): x is AppState {
 
 	if (o.selected !== null && typeof o.selected !== 'string') return false;
 	if (!isStressValid(o.stress)) return false;
-	if (!isFiniteNonNeg(o.timeMonths)) return false;
+	if (!inRange(o.timeMonths, 0, 24)) return false;
 
 	return true;
 }
