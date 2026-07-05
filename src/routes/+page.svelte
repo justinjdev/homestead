@@ -1,15 +1,27 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { initPersistence, storageWarning, linkWarning } from '$lib/state/store.svelte';
+	import { initPersistence, storageWarning, linkWarning, introSeen, pendingImport } from '$lib/state/store.svelte';
 	import EnvelopeMap from '$lib/components/map/EnvelopeMap.svelte';
 	import FinancesPanel from '$lib/components/FinancesPanel.svelte';
 	import DetailPanel from '$lib/components/DetailPanel.svelte';
 	import StressStrip from '$lib/components/StressStrip.svelte';
 	import Dock from '$lib/components/Dock.svelte';
+	import IntroCard from '$lib/components/IntroCard.svelte';
+
+	let mounted = $state(false);
+	let hadHash = $state(false);
 
 	onMount(() => {
+		hadHash = location.hash !== '';
 		initPersistence();
+		mounted = true;
 	});
+
+	// First-visit only: shown after mount when there is no shared-link hash, no
+	// pending import, and the intro has not been dismissed on this device.
+	const showIntro = $derived(
+		mounted && !hadHash && pendingImport.state === null && !introSeen.seen
+	);
 </script>
 
 <div class="survey">
@@ -39,6 +51,10 @@
 		<Dock />
 	</div>
 </div>
+
+{#if showIntro}
+	<IntroCard />
+{/if}
 
 {#if storageWarning.active}
 	<div class="toast" role="status">
