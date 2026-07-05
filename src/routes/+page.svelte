@@ -170,6 +170,19 @@
 		animation-delay: var(--d, 0ms);
 	}
 
+	/* Contain the side rails to the viewport height on desktop so a tall
+	   Detail panel (or expanding its site-work estimator) scrolls inside the
+	   rail instead of dictating the shared grid-row height and reflowing the
+	   stress strip + dock below it. Not sticky: a near-viewport-tall rail
+	   pinned in view would overlap the full-width dock row on scroll. */
+	@media (min-width: 1101px) {
+		.rail.left,
+		.rail.right {
+			max-height: calc(100dvh - 2 * var(--space-4));
+			overflow-y: auto;
+		}
+	}
+
 	@media (max-width: 1100px) {
 		.survey {
 			grid-template-columns: 1fr;
