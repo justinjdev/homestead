@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { app } from '$lib/state/store.svelte';
-	import { region, capacity } from '$lib/model';
+	import { region, capacityBreakdown } from '$lib/model';
 	import { domains, makeScale } from '$lib/map/scale';
 	import { VIEW_W, VIEW_H, MARGIN, PLOT_W, PLOT_H, CONTOUR_TIMES, fullDollar } from '$lib/map/layout';
 	import Axes from './Axes.svelte';
@@ -23,16 +23,31 @@
 
 	const polyAtMax = $derived(region(app.finances, app.presets, app.stress, 24));
 	const incomeBelowExpenses = $derived(app.finances.incomeMonthly - app.stress.incomeDropMonthly <= app.finances.expensesMonthly);
-	const cap = $derived(capacity(app.finances, app.stress));
+	const breakdown = $derived(capacityBreakdown(app.finances, app.stress));
 
 	const emptyMessage = $derived.by((): { title: string; body: string } | null => {
 		if (polyAtMax.length >= 3) return null;
 		if (incomeBelowExpenses) {
 			return { title: 'Income doesn’t cover expenses', body: 'The map needs a monthly surplus — income minus expenses is what funds any housing payment.' };
 		}
+		const insurance = `${fullDollar(app.presets.insuranceMonthly)}/mo`;
+		// Region is empty, so the budget can be ≤ 0; clamp so copy reads "$0/mo", not "$-20/mo".
+		const budget = `${fullDollar(Math.max(0, breakdown.capacity))}/mo`;
+		if (breakdown.binding === 'back-end') {
+			return {
+				title: 'Existing debt is the limit',
+				body: `Your ${fullDollar(app.finances.debtMonthly)}/mo of existing debt uses up your back-end budget, leaving ${budget} for a home — below the ${insurance} insurance floor. Pay down debt or raise the back-end DTI limit.`
+			};
+		}
+		if (breakdown.binding === 'solvency') {
+			return {
+				title: 'Nothing is affordable at these settings',
+				body: `After expenses and existing debt, only ${budget} remains — below the ${insurance} insurance floor.`
+			};
+		}
 		return {
 			title: 'Nothing is affordable at these settings',
-			body: `Your monthly capacity is ${fullDollar(cap)} against a floor of ${fullDollar(app.presets.insuranceMonthly)}/mo in insurance alone. The monthly constraint binds — even a $0 parcel and home don’t fit.`
+			body: `At a ${Math.round(app.finances.comfortFrac * 100)}% comfort threshold your home budget is ${budget} — below the ${insurance} insurance floor. Raise the comfort threshold to allow more.`
 		};
 	});
 </script>

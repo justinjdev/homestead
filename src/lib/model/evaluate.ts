@@ -1,18 +1,42 @@
 import { comboCosts } from './costs';
 import type { Evaluation, FinanceProfile, HomeOption, Parcel, Presets, Stress } from './types';
 
+export type BindingConstraint = 'front-end' | 'back-end' | 'solvency';
+
+export interface CapacityBreakdown {
+	frontEnd: number; // comfortFrac × I           (housing payment alone)
+	backEnd: number;  // backEndFrac × I − debt     (housing payment + existing debt)
+	solvency: number; // I − expenses − debt        (never cash-flow negative)
+	capacity: number; // min(frontEnd, backEnd, solvency)
+	binding: BindingConstraint; // which term equals capacity (front-end wins ties)
+}
+
+/**
+ * Two-tier DTI breakdown of monthly housing capacity.
+ *
+ *   I = incomeMonthly − incomeDropMonthly              (stressed take-home)
+ *   frontEnd = comfortFrac × I                         (front-end DTI: housing only)
+ *   backEnd  = backEndFrac × I − debtMonthly           (back-end DTI: housing + debt)
+ *   solvency = I − expensesMonthly − debtMonthly       (cash-flow floor)
+ *   capacity = min(frontEnd, backEnd, solvency)
+ */
+export function capacityBreakdown(finances: FinanceProfile, stress: Stress): CapacityBreakdown {
+	const I = finances.incomeMonthly - stress.incomeDropMonthly;
+	const frontEnd = finances.comfortFrac * I;
+	const backEnd = finances.backEndFrac * I - finances.debtMonthly;
+	const solvency = I - finances.expensesMonthly - finances.debtMonthly;
+	const capacity = Math.min(frontEnd, backEnd, solvency);
+	const binding: BindingConstraint =
+		capacity === frontEnd ? 'front-end' : capacity === backEnd ? 'back-end' : 'solvency';
+	return { frontEnd, backEnd, solvency, capacity, binding };
+}
+
 /**
  * Monthly capacity: how much can be spent on housing loans, tax, and insurance.
- *
- * Formula:
- *   stressed income I = incomeMonthly - incomeDropMonthly
- *   capacity = min(comfortFrac * I, I - expensesMonthly) - debtMonthly
- *
- * May be ≤ 0 when expenses exceed income or debt is too high.
+ * See capacityBreakdown for the formula. May be ≤ 0 when debt or expenses are too high.
  */
 export function capacity(finances: FinanceProfile, stress: Stress): number {
-	const I = finances.incomeMonthly - stress.incomeDropMonthly;
-	return Math.min(finances.comfortFrac * I, I - finances.expensesMonthly) - finances.debtMonthly;
+	return capacityBreakdown(finances, stress).capacity;
 }
 
 /**
@@ -65,15 +89,18 @@ export function evaluate(
 	const cashSlack = cashAvailable - costs.cashNeeded;
 	const siteWorkOverrunFrac = home.siteWork > 0 ? cashSlack / home.siteWork : null;
 
-	// incomeDropMonthly: max additional drop d such that capacity(I - d) >= monthlyCost
-	// capacity is min(comfortFrac*(I-d), (I-d)-expenses) - debt >= monthlyCost
-	// Solve both branches and take the minimum positive result:
-	//   branch 1: comfortFrac*(I-d) - debt >= monthlyCost  → d <= (comfortFrac*I - debt - monthlyCost)/comfortFrac
-	//   branch 2: (I-d) - expenses - debt >= monthlyCost   → d <= I - expenses - debt - monthlyCost
+	// incomeDropMonthly: max additional drop d such that capacity(I - d) >= monthlyCost.
+	// capacity = min(comfortFrac*(I-d), backEndFrac*(I-d) - debt, (I-d) - expenses - debt).
+	// Each term ≥ monthlyCost (mc) gives an upper bound on d; take the min:
+	//   front-end:  comfortFrac*(I-d) >= mc         → d <= I - mc/comfortFrac
+	//   back-end:   backEndFrac*(I-d) - debt >= mc  → d <= I - (mc + debt)/backEndFrac
+	//   solvency:   (I-d) - expenses - debt >= mc   → d <= I - expenses - debt - mc
 	const I = stressedIncome;
-	const d1 = (finances.comfortFrac * I - finances.debtMonthly - costs.monthlyCost) / finances.comfortFrac;
-	const d2 = I - finances.expensesMonthly - finances.debtMonthly - costs.monthlyCost;
-	const incomeDropMonthly = Math.max(0, Math.min(d1, d2));
+	const mc = costs.monthlyCost;
+	const dFront = I - mc / finances.comfortFrac;
+	const dBack = I - (mc + finances.debtMonthly) / finances.backEndFrac;
+	const dSolvency = I - finances.expensesMonthly - finances.debtMonthly - mc;
+	const incomeDropMonthly = Math.max(0, Math.min(dFront, dBack, dSolvency));
 
 	// rateRisePct: max additional rate rise Δ where monthlyCost(rate + Δ) <= capacity
 	// null if both loans are cash purchases (downFrac === 1)
