@@ -9,6 +9,7 @@
 		toggleMuted
 	} from '$lib/state/store.svelte';
 	import { evaluate } from '$lib/model';
+	import MoneyInput from './MoneyInput.svelte';
 
 	let newParcel = $state({ name: '', landPrice: 0 });
 	let newHome = $state({ name: '', homeCost: 0, siteWork: 0 });
@@ -55,45 +56,40 @@
 <section class="dock">
 	<div class="col">
 		<h3>Parcels</h3>
+		<p class="cols">name · price</p>
 		<ul class="rows">
 			{#each app.parcels as parcel (parcel.id)}
 				<li class="row">
 					<input class="name" type="text" bind:value={parcel.name} aria-label="Parcel name" />
-					<input
-						class="num price"
-						type="number"
-						min="0"
-						step="1000"
-						bind:value={parcel.landPrice}
-						aria-label="Land price"
-					/>
+					<MoneyInput class="compact" bind:value={parcel.landPrice} ariaLabel="Land price" />
 					<button class="remove" onclick={() => removeParcel(parcel.id)} aria-label="Remove parcel">×</button>
 				</li>
 			{/each}
 		</ul>
 		<form class="add" onsubmit={submitParcel}>
 			<input class="name" type="text" placeholder="New parcel" bind:value={newParcel.name} />
-			<input class="num price" type="number" min="0" step="1000" placeholder="price" bind:value={newParcel.landPrice} />
+			<MoneyInput class="compact" bind:value={newParcel.landPrice} placeholder="price" ariaLabel="New parcel price" />
 			<button type="submit" class="add-btn" aria-label="Add parcel">+</button>
 		</form>
 	</div>
 
 	<div class="col">
 		<h3>Homes</h3>
+		<p class="cols">name · cost · site work</p>
 		<ul class="rows">
 			{#each app.homes as home (home.id)}
 				<li class="row">
 					<input class="name" type="text" bind:value={home.name} aria-label="Home name" />
-					<input class="num price" type="number" min="0" step="1000" bind:value={home.homeCost} aria-label="Home cost" />
-					<input class="num price" type="number" min="0" step="1000" bind:value={home.siteWork} aria-label="Site work" />
+					<MoneyInput class="compact" bind:value={home.homeCost} ariaLabel="Home cost" />
+					<MoneyInput class="compact" bind:value={home.siteWork} ariaLabel="Site work" />
 					<button class="remove" onclick={() => removeHome(home.id)} aria-label="Remove home">×</button>
 				</li>
 			{/each}
 		</ul>
 		<form class="add" onsubmit={submitHome}>
 			<input class="name" type="text" placeholder="New home" bind:value={newHome.name} />
-			<input class="num price" type="number" min="0" step="1000" placeholder="cost" bind:value={newHome.homeCost} />
-			<input class="num price" type="number" min="0" step="1000" placeholder="site" bind:value={newHome.siteWork} />
+			<MoneyInput class="compact" bind:value={newHome.homeCost} placeholder="cost" ariaLabel="New home cost" />
+			<MoneyInput class="compact" bind:value={newHome.siteWork} placeholder="site" ariaLabel="New home site work" />
 			<button type="submit" class="add-btn" aria-label="Add home">+</button>
 		</form>
 	</div>
@@ -136,6 +132,13 @@
 		font-variant-caps: small-caps;
 		letter-spacing: 0.08em;
 	}
+	.cols {
+		margin: -0.35rem 0 var(--space-2);
+		font-family: var(--font-body);
+		font-size: 0.68rem;
+		letter-spacing: 0.04em;
+		color: var(--ink-faint);
+	}
 	.rows,
 	.chips {
 		list-style: none;
@@ -167,8 +170,7 @@
 		flex: 1;
 		min-width: 0;
 	}
-	.num,
-	.price {
+	.num {
 		font-family: var(--font-figures);
 		text-align: right;
 		width: 5.5em;
