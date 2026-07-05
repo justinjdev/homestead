@@ -30,6 +30,7 @@ export interface Parcel {
 	landPrice: number;
 	taxAnnualPct?: number;    // per-parcel override
 	closingFrac?: number;     // per-parcel override
+	url?: string;            // source listing URL (http/https), optional
 }
 
 export interface HomeOption {
@@ -37,6 +38,7 @@ export interface HomeOption {
 	name: string;
 	homeCost: number;
 	siteWork: number;
+	url?: string;            // source listing URL (http/https), optional
 }
 
 export interface Stress {

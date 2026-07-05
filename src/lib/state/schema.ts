@@ -62,6 +62,18 @@ function inRange(n: unknown, min: number, max: number): n is number {
 	return typeof n === 'number' && Number.isFinite(n) && n >= min && n <= max;
 }
 
+// Only http/https URLs are accepted for listing links, so a crafted hash
+// can never inject a javascript:/data: URL that later renders as an href.
+export function isHttpUrl(u: unknown): boolean {
+	if (typeof u !== 'string') return false;
+	try {
+		const { protocol } = new URL(u);
+		return protocol === 'http:' || protocol === 'https:';
+	} catch {
+		return false;
+	}
+}
+
 function isFinancesValid(f: unknown): f is FinanceProfile {
 	if (typeof f !== 'object' || f === null) return false;
 	const o = f as Record<string, unknown>;
@@ -115,12 +127,14 @@ function isParcelValid(p: unknown): p is Parcel {
 	// Optional overrides
 	if (o.taxAnnualPct !== undefined && !isFiniteNonNeg(o.taxAnnualPct)) return false;
 	if (o.closingFrac !== undefined && !isFiniteNonNeg(o.closingFrac)) return false;
+	if (o.url !== undefined && !isHttpUrl(o.url)) return false;
 	return true;
 }
 
 function isHomeOptionValid(h: unknown): h is HomeOption {
 	if (typeof h !== 'object' || h === null) return false;
 	const o = h as Record<string, unknown>;
+	if (o.url !== undefined && !isHttpUrl(o.url)) return false;
 	return (
 		typeof o.id === 'string' &&
 		typeof o.name === 'string' &&
