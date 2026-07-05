@@ -76,7 +76,7 @@
 		position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
 		max-width: 380px; padding: var(--space-4); background: var(--paper-raised);
 		border: var(--hairline); border-left: 3px solid var(--flag); border-radius: var(--radius);
-		box-shadow: 0 6px 24px rgba(43, 42, 36, 0.15);
+		box-shadow: 0 6px 24px color-mix(in srgb, var(--ink) 15%, transparent);
 	}
 	.empty-card h3 { margin: 0 0 var(--space-2); font-size: 1rem; color: var(--flag); }
 	.empty-card p { margin: 0; font-family: var(--font-body); font-size: 0.9rem; line-height: 1.5; color: var(--ink); }

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { app, addParcel, addHome } from '$lib/state/store.svelte';
-	import { region } from '$lib/model';
+	import { region, SITE_WORK_FRAC } from '$lib/model';
 	import { PLOT_LEFT, PLOT_TOP, PLOT_RIGHT, PLOT_BOTTOM, PLOT_W, PLOT_H, fullDollar } from '$lib/map/layout';
 
 	let { px, py, xMax, yMax }: {
@@ -58,7 +58,7 @@
 		const c = svgCoords(evt);
 		if (!c) return;
 		const d = toData(c.sx, c.sy);
-		form = { x: d.x, y: d.y, name: 'Probed', land: Math.round(d.x), home: Math.round(d.y * 0.75), site: Math.round(d.y * 0.25) };
+		form = { x: d.x, y: d.y, name: 'Probed', land: Math.round(d.x), home: Math.round(d.y * (1 - SITE_WORK_FRAC)), site: Math.round(d.y * SITE_WORK_FRAC) };
 	}
 	function saveForm() {
 		if (!form) return;
