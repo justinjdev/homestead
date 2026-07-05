@@ -56,8 +56,6 @@
 			<ComboDots {px} {py} />
 		</svg>
 
-		<Legend />
-
 		{#if emptyMessage}
 			<div class="empty-card">
 				<h3>{emptyMessage.title}</h3>
@@ -65,6 +63,8 @@
 			</div>
 		{/if}
 	</div>
+
+	<Legend />
 </section>
 
 <style>

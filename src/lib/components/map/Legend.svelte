@@ -1,6 +1,7 @@
 <script lang="ts">
-	// Cartographic KEY for the affordability map. Rendered as an opaque plat-map
-	// key box pinned in the plot's upper-right corner (the envelope sits lower-left).
+	// Cartographic KEY for the affordability map. Rendered as a horizontal strip
+	// directly beneath the plot (outside the SVG) so it never overlaps any mark,
+	// guide line, or the empty-state card in any fixture.
 </script>
 
 <figure class="legend" aria-label="Map key">
@@ -43,49 +44,49 @@
 
 <style>
 	.legend {
-		position: absolute;
-		top: var(--space-2);
-		right: var(--space-2);
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--space-2) var(--space-3);
 		margin: 0;
-		max-width: 224px;
 		padding: var(--space-2) var(--space-3);
 		background: var(--paper-raised);
 		border: var(--hairline);
 		border-radius: var(--radius);
-		box-shadow: 0 2px 10px color-mix(in srgb, var(--ink) 12%, transparent);
 	}
 	.legend-title {
-		margin: 0 0 var(--space-2);
-		padding-bottom: var(--space-1);
 		font-family: var(--font-body);
-		font-size: 0.62rem;
+		font-size: 0.66rem;
 		font-weight: 600;
 		letter-spacing: 0.24em;
 		text-transform: uppercase;
 		color: var(--ink-faint);
-		border-bottom: var(--hairline);
+		padding-right: var(--space-3);
+		border-right: var(--hairline);
 	}
 	.legend-items {
 		list-style: none;
 		margin: 0;
 		padding: 0;
 		display: flex;
-		flex-direction: column;
-		gap: var(--space-1);
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-2) var(--space-4);
 	}
 	.legend-items li {
-		display: grid;
-		grid-template-columns: 18px 1fr;
+		display: inline-flex;
 		align-items: center;
 		gap: var(--space-2);
 	}
 	.legend-label {
 		font-family: var(--font-body);
-		font-size: 0.66rem;
-		line-height: 1.25;
+		font-size: 0.72rem;
+		line-height: 1.2;
 		color: var(--ink);
+		white-space: nowrap;
 	}
 	.swatch {
+		flex: none;
 		width: 18px;
 		height: 12px;
 	}
