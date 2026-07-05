@@ -7,7 +7,7 @@
 		dismissImport,
 		shareUrl
 	} from '$lib/state/store.svelte';
-	import { evaluate, comboCosts } from '$lib/model';
+	import { evaluate, comboCosts, countedRentMonthly } from '$lib/model';
 	import type { LoanTerms } from '$lib/model/types';
 	import { fullDollar } from '$lib/map/layout';
 	import SiteWorkDrawer from './SiteWorkDrawer.svelte';
@@ -25,6 +25,7 @@
 	const ev = $derived(
 		sel ? evaluate(app.finances, sel.parcel, sel.home, app.presets, app.stress, app.timeMonths) : null
 	);
+	const counted = $derived(countedRentMonthly(app.finances));
 
 	function pickParcel(e: Event) {
 		const pid = (e.currentTarget as HTMLSelectElement).value;
@@ -162,6 +163,10 @@
 				<tr><th>Tax</th><td class="num">{fullDollar(costs.taxMonthly)}</td></tr>
 				<tr><th>Insurance</th><td class="num">{fullDollar(app.presets.insuranceMonthly)}</td></tr>
 				<tr class="total"><th>Monthly cost</th><td class="num">{fullDollar(costs.monthlyCost)}</td></tr>
+				{#if app.finances.rentalMonthly > 0}
+					<tr class="rental"><th>Rental income (75%)</th><td class="num">−{fullDollar(counted)}</td></tr>
+					<tr class="total"><th>Net monthly</th><td class="num">{fullDollar(costs.monthlyCost - counted)}</td></tr>
+				{/if}
 				<tr class="avail" class:short={!ev.monthlyOk}><th>Capacity</th><td class="num">{fullDollar(ev.monthlyCapacity)}</td></tr>
 			</tbody>
 		</table>
