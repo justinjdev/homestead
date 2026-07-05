@@ -28,6 +28,13 @@ import type { FinanceProfile, Polygon, Presets, Stress } from './types';
 
 const M = 1e8; // large bound for the initial bounding quadrilateral
 
+/**
+ * Default share of the improvement budget y that is site work (the rest is the
+ * financed home cost). Single source of truth so callers (e.g. the map's probe)
+ * split an improvement budget the same way the region math does.
+ */
+export const SITE_WORK_FRAC = 0.25;
+
 export interface Constraint {
 	a: number;
 	b: number;
@@ -133,7 +140,7 @@ export function regionConstraints(
 	presets: Presets,
 	stress: Stress,
 	tMonths: number,
-	siteWorkFrac = 0.25
+	siteWorkFrac = SITE_WORK_FRAC
 ): RegionConstraints {
 	const { land, home, closingFrac, taxAnnualPct, insuranceMonthly } = presets;
 	const s = siteWorkFrac;
@@ -179,7 +186,7 @@ export function region(
 	presets: Presets,
 	stress: Stress,
 	tMonths: number,
-	siteWorkFrac = 0.25
+	siteWorkFrac = SITE_WORK_FRAC
 ): Polygon {
 	const { cash, monthly } = regionConstraints(finances, presets, stress, tMonths, siteWorkFrac);
 	const poly = clipQuadrant([cash, monthly]);
