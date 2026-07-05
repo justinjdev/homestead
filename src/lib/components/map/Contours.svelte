@@ -9,14 +9,23 @@
 
 	const contours = $derived.by((): Contour[] => {
 		const out: Contour[] = [];
+		let lastD = '';
 		CONTOUR_TIMES.forEach((t, i) => {
 			const poly = region(app.finances, app.presets, app.stress, t);
 			if (poly.length < 3) return;
-			const d = poly.map(([x, y], j) => `${j === 0 ? 'M' : 'L'}${px(x)},${py(y)}`).join(' ') + 'Z';
+			// Round to whole pixels so coincident horizons (cash not yet binding)
+			// produce an identical path and collapse to one labeled contour.
+			const d =
+				poly
+					.map(([x, y], j) => `${j === 0 ? 'M' : 'L'}${Math.round(px(x))},${Math.round(py(y))}`)
+					.join(' ') + 'Z';
+			if (d === lastD) return;
+			lastD = d;
 			const opacity = 0.9 - (i / (CONTOUR_TIMES.length - 1)) * (0.9 - 0.25);
-			let outer = poly[0];
-			for (const v of poly) if (v[0] + v[1] > outer[0] + outer[1]) outer = v;
-			out.push({ t, d, opacity, labelX: px(outer[0]) + 4, labelY: py(outer[1]) - 4 });
+			// Label at the top (y-axis) apex; nested horizons spread vertically.
+			let apex = poly[0];
+			for (const v of poly) if (v[1] > apex[1]) apex = v;
+			out.push({ t, d, opacity, labelX: px(apex[0]) + 6, labelY: py(apex[1]) + 3 });
 		});
 		return out;
 	});
