@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { app } from '$lib/state/store.svelte';
-	import { region, capacityBreakdown } from '$lib/model';
+	import { region, capacityBreakdown, countedRentMonthly, SITE_WORK_FRAC } from '$lib/model';
 	import { domains, makeScale } from '$lib/map/scale';
 	import { VIEW_W, VIEW_H, MARGIN, PLOT_W, PLOT_H, CONTOUR_TIMES, fullDollar } from '$lib/map/layout';
 	import Axes from './Axes.svelte';
@@ -14,7 +14,13 @@
 	const contourPolys = $derived(CONTOUR_TIMES.map((t) => region(app.finances, app.presets, app.stress, t)));
 	const currentPoly = $derived(region(app.finances, app.presets, app.stress, app.timeMonths));
 
-	const dom = $derived(domains([...contourPolys, currentPoly], app.parcels, app.homes));
+	const counted = $derived(countedRentMonthly(app.finances));
+	const showRental = $derived(app.finances.rentalMonthly > 0);
+	const optimisticPoly = $derived(
+		showRental ? region(app.finances, app.presets, app.stress, app.timeMonths, SITE_WORK_FRAC, counted) : []
+	);
+
+	const dom = $derived(domains([...contourPolys, currentPoly, optimisticPoly], app.parcels, app.homes));
 	const xScale = $derived(makeScale(dom.xMax, PLOT_W));
 	const yScale = $derived(makeScale(dom.yMax, PLOT_H));
 
@@ -66,6 +72,9 @@
 			<Axes {px} {py} xMax={dom.xMax} yMax={dom.yMax} />
 			<Contours {px} {py} />
 			<Region {px} {py} />
+			{#if showRental}
+				<Region {px} {py} rentalOffsetMonthly={counted} variant="optimistic" />
+			{/if}
 			<GuideLines {px} {py} />
 			<Probe {px} {py} xMax={dom.xMax} yMax={dom.yMax} />
 			<ComboDots {px} {py} />

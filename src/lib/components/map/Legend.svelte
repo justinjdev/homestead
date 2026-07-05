@@ -20,6 +20,10 @@
 			<span class="legend-label">Monthly limit — payments + tax + insurance</span>
 		</li>
 		<li>
+			<span class="swatch line rental" aria-hidden="true"></span>
+			<span class="legend-label">With rental income</span>
+		</li>
+		<li>
 			<span class="swatch line survey" aria-hidden="true"></span>
 			<span class="legend-label">As you save · now → 24 mo</span>
 		</li>
@@ -106,6 +110,10 @@
 	}
 	.swatch.line.monthly {
 		border-top-color: var(--edge-monthly);
+	}
+	.swatch.line.rental {
+		background: none;
+		border-top: 2px dashed var(--edge-rental);
 	}
 	.swatch.line.survey {
 		border-top-width: 1.5px;
