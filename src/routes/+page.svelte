@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { initPersistence, storageWarning } from '$lib/state/store.svelte';
+	import { initPersistence, storageWarning, linkWarning } from '$lib/state/store.svelte';
 	import EnvelopeMap from '$lib/components/map/EnvelopeMap.svelte';
 	import FinancesPanel from '$lib/components/FinancesPanel.svelte';
 	import DetailPanel from '$lib/components/DetailPanel.svelte';
@@ -43,6 +43,13 @@
 {#if storageWarning.active}
 	<div class="toast" role="status">
 		Saving is unavailable — your changes stay in this browser session only.
+	</div>
+{/if}
+
+{#if linkWarning.active}
+	<div class="toast link-notice" role="status">
+		<span>That shared link was malformed and couldn’t be read — showing your saved survey instead.</span>
+		<button type="button" class="toast-dismiss" onclick={() => (linkWarning.active = false)} aria-label="Dismiss notice">×</button>
 	</div>
 {/if}
 
@@ -112,8 +119,24 @@
 		font-size: 0.85rem;
 		padding: var(--space-2) var(--space-4);
 		border-radius: var(--radius);
-		box-shadow: 0 6px 24px rgba(43, 42, 36, 0.25);
+		box-shadow: 0 6px 24px color-mix(in srgb, var(--ink) 25%, transparent);
 		z-index: 10;
+	}
+
+	.link-notice {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+	}
+	.toast-dismiss {
+		background: none;
+		border: none;
+		color: var(--paper);
+		font-family: var(--font-body);
+		font-size: 1.1rem;
+		line-height: 1;
+		cursor: pointer;
+		padding: 0;
 	}
 
 	@keyframes rise {

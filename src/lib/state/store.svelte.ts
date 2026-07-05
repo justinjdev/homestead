@@ -8,6 +8,7 @@ const app: AppState = $state(defaultState());
 
 const pendingImport: { state: AppState | null } = $state({ state: null });
 const storageWarning: { active: boolean } = $state({ active: false });
+const linkWarning: { active: boolean } = $state({ active: false });
 
 const STORAGE_KEY = 'homestead:v1';
 
@@ -52,7 +53,8 @@ function initPersistence(): void {
 			Object.assign(app, decoded);
 			pendingImport.state = decoded;
 		} else {
-			// Malformed hash → ignore, fall back to localStorage.
+			// Malformed hash → ignore + notice, fall back to localStorage.
+			linkWarning.active = true;
 			const saved = loadSaved();
 			if (saved) Object.assign(app, saved);
 		}
@@ -79,7 +81,11 @@ function initPersistence(): void {
 
 function acceptImport(): void {
 	if (!pendingImport.state) return;
-	// State is already applied to `app`; keep it and let persistence resume.
+	// Flush the imported state to localStorage synchronously BEFORE clearing the
+	// pending flag and stripping the hash. The debounced $effect only schedules a
+	// write ~250ms out; a reload inside that window would otherwise lose the
+	// just-accepted import.
+	persistSnapshot(JSON.stringify(app));
 	pendingImport.state = null;
 	importRestore = null;
 	history.replaceState(null, '', location.pathname + location.search);
@@ -136,6 +142,7 @@ export {
 	app,
 	pendingImport,
 	storageWarning,
+	linkWarning,
 	initPersistence,
 	acceptImport,
 	dismissImport,
