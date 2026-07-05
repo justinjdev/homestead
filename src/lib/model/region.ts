@@ -28,7 +28,7 @@ import type { FinanceProfile, Polygon, Presets, Stress } from './types';
 
 const M = 1e8; // large bound for the initial bounding quadrilateral
 
-interface Constraint {
+export interface Constraint {
 	a: number;
 	b: number;
 	c: number; // a*x + b*y <= c
@@ -114,22 +114,27 @@ function normalizePolygon(poly: Polygon): Polygon {
 }
 
 /**
- * Compute the affordability envelope polygon.
- *
- * @param finances     - User finance profile
- * @param presets      - Financing presets
- * @param stress       - Stress parameters (applied to both constraints)
- * @param tMonths      - Time horizon in months (grows cash constraint)
- * @param siteWorkFrac - Share of improvement budget y that is site work (default 0.25)
- * @returns            - CCW polygon in [landPrice, improvementBudget] space; [] if empty
+ * The two binding half-planes that (together with the first quadrant) define
+ * the affordability envelope. Exposed so the map can identify which polygon
+ * edge lies on the cash vs. the monthly constraint without recomputing money
+ * math in a component (CLAUDE.md hard rule 2).
  */
-export function region(
+export interface RegionConstraints {
+	cash: Constraint;
+	monthly: Constraint;
+}
+
+/**
+ * Compute the cash and monthly constraint coefficients (a*x + b*y ≤ c) for the
+ * envelope. Single source of truth consumed by both `region` and the map.
+ */
+export function regionConstraints(
 	finances: FinanceProfile,
 	presets: Presets,
 	stress: Stress,
 	tMonths: number,
 	siteWorkFrac = 0.25
-): Polygon {
+): RegionConstraints {
 	const { land, home, closingFrac, taxAnnualPct, insuranceMonthly } = presets;
 	const s = siteWorkFrac;
 	const ov = 1 + stress.siteWorkOverrunFrac;
@@ -153,10 +158,30 @@ export function region(
 	const a2 = (1 - land.downFrac) * kL + taxM;
 	const b2 = (1 - s) * ((1 - home.downFrac) * kH + taxM);
 
-	const poly = clipQuadrant([
-		{ a: a1, b: b1, c: c1 },
-		{ a: a2, b: b2, c: c2 },
-	]);
+	return {
+		cash: { a: a1, b: b1, c: c1 },
+		monthly: { a: a2, b: b2, c: c2 },
+	};
+}
 
+/**
+ * Compute the affordability envelope polygon.
+ *
+ * @param finances     - User finance profile
+ * @param presets      - Financing presets
+ * @param stress       - Stress parameters (applied to both constraints)
+ * @param tMonths      - Time horizon in months (grows cash constraint)
+ * @param siteWorkFrac - Share of improvement budget y that is site work (default 0.25)
+ * @returns            - CCW polygon in [landPrice, improvementBudget] space; [] if empty
+ */
+export function region(
+	finances: FinanceProfile,
+	presets: Presets,
+	stress: Stress,
+	tMonths: number,
+	siteWorkFrac = 0.25
+): Polygon {
+	const { cash, monthly } = regionConstraints(finances, presets, stress, tMonths, siteWorkFrac);
+	const poly = clipQuadrant([cash, monthly]);
 	return normalizePolygon(poly);
 }

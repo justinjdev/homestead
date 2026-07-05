@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clipQuadrant, region } from './region';
+import { clipQuadrant, region, regionConstraints } from './region';
 import type { FinanceProfile, Presets, Stress } from './types';
 
 const defaultPresets: Presets = {
@@ -117,6 +117,32 @@ describe('region', () => {
 		const xInts12 = poly12.filter(([, y]) => Math.abs(y) < 1e-6).map(([x]) => x);
 		const xInt12 = Math.max(...xInts12);
 		expect(xInt12).toBeGreaterThan(xInt0);
+	});
+
+	it('regionConstraints matches the constraints the polygon lies on', () => {
+		const { cash, monthly } = regionConstraints(finances, defaultPresets, zeroStress, 0);
+		expect(cash.a).toBeGreaterThan(0);
+		expect(cash.b).toBeGreaterThan(0);
+		expect(monthly.a).toBeGreaterThan(0);
+		expect(monthly.b).toBeGreaterThan(0);
+
+		const poly = region(finances, defaultPresets, zeroStress, 0);
+		// Every vertex satisfies both half-planes.
+		for (const [x, y] of poly) {
+			expect(cash.a * x + cash.b * y).toBeLessThanOrEqual(cash.c + 1e-6);
+			expect(monthly.a * x + monthly.b * y).toBeLessThanOrEqual(monthly.c + 1e-6);
+		}
+		// At least one non-axis edge lies on one of the two exposed constraints,
+		// proving these are the half-planes that actually bound the polygon.
+		const onLine = (con: { a: number; b: number; c: number }) =>
+			poly.some((_, i) => {
+				const [x1, y1] = poly[i];
+				const [x2, y2] = poly[(i + 1) % poly.length];
+				const mx = (x1 + x2) / 2;
+				const my = (y1 + y2) / 2;
+				return Math.abs(con.a * mx + con.b * my - con.c) < con.c * 1e-6;
+			});
+		expect(onLine(cash) || onLine(monthly)).toBe(true);
 	});
 
 	it('(e) polygon order is CCW, starting near [0,0]', () => {
