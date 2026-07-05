@@ -62,10 +62,12 @@ capacity = min(
   debt subtraction leaves its branch and moves into the new back-end branch.
   Its doc comment is updated from "all-in housing" to "front-end housing
   ratio (housing payment only)".
-- **`backEndFrac`** is a new financing preset, **default 0.43** (the
+- **`backEndFrac`** is a new **`FinanceProfile`** field, sibling to
+  `comfortFrac` (both DTI ratios live together; this also keeps the
+  `capacity(finances, stress)` signature unchanged). **Default 0.43** (the
   conforming back-end DTI standard). Note it is applied to *take-home*, where
   the textbook 43% is a *gross* figure — so the default is deliberately
-  conservative and is overridable like the other presets.
+  conservative and is overridable like `comfortFrac`.
 
 For the reported profile: `min(3874.8, 1287.88, 7272) = 1287.88`. Capacity
 becomes **+$1,288/mo**, existing debt is the honest binding constraint, and
@@ -114,9 +116,12 @@ picks up the corrected value automatically.
 
 ## State (`schema.ts`)
 
-- Add `backEndFrac: number` to the `Presets` interface (`types.ts`) and to
-  `defaultState().presets` (= 0.43).
-- `isPresetsValid` requires `backEndFrac` in `(0, 1]`.
+- Add `backEndFrac: number` to the `FinanceProfile` interface (`types.ts`)
+  and to `defaultState().finances` (= 0.43).
+- `isFinancesValid` requires `backEndFrac` in `(0, 1]` (strictly > 0 — it is
+  a divisor in the income-drop margin, like `comfortFrac`).
+- Every `FinanceProfile` literal (test fixtures, visual-QA state JSON) gains
+  `backEndFrac`. `Presets` literals are untouched.
 - **No backward-compatibility handling.** Old `v:1` hashes/localStorage
   without `backEndFrac` fail validation and fall back to `defaultState()`.
   State stays `v: 1`.
