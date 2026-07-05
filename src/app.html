@@ -4,27 +4,9 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
-		<link
-			rel="preload"
-			href="%sveltekit.assets%/fonts/bricolage-grotesque-700.woff2"
-			as="font"
-			type="font/woff2"
-			crossorigin="anonymous"
-		/>
-		<link
-			rel="preload"
-			href="%sveltekit.assets%/fonts/besley-400.woff2"
-			as="font"
-			type="font/woff2"
-			crossorigin="anonymous"
-		/>
-		<link
-			rel="preload"
-			href="%sveltekit.assets%/fonts/spline-sans-mono-400.woff2"
-			as="font"
-			type="font/woff2"
-			crossorigin="anonymous"
-		/>
+		<!-- Fonts are bundled by Vite from src/lib/assets/fonts and referenced with
+		     hashed, base-prefixed names in the built CSS, so they can't be preloaded
+		     by a static path here. font-display: swap keeps first paint unblocked. -->
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

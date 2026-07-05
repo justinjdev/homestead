@@ -1,12 +1,14 @@
 /* Homestead global styles — plat-map field.
-   Self-hosted fonts (latin subset, font-display: swap). No runtime CDN. */
+   Self-hosted fonts (latin subset, font-display: swap). No runtime CDN.
+   Referenced relatively so Vite bundles + base-prefixes them (works under
+   the /homestead GitHub Pages base path). */
 
 @font-face {
 	font-family: 'Bricolage Grotesque';
 	font-style: normal;
 	font-weight: 700;
 	font-display: swap;
-	src: url('/fonts/bricolage-grotesque-700.woff2') format('woff2');
+	src: url('../assets/fonts/bricolage-grotesque-700.woff2') format('woff2');
 }
 
 @font-face {
@@ -14,7 +16,7 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src: url('/fonts/besley-400.woff2') format('woff2');
+	src: url('../assets/fonts/besley-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -22,7 +24,7 @@
 	font-style: italic;
 	font-weight: 600;
 	font-display: swap;
-	src: url('/fonts/besley-600-italic.woff2') format('woff2');
+	src: url('../assets/fonts/besley-600-italic.woff2') format('woff2');
 }
 
 @font-face {
@@ -30,7 +32,7 @@
 	font-style: normal;
 	font-weight: 400;
 	font-display: swap;
-	src: url('/fonts/spline-sans-mono-400.woff2') format('woff2');
+	src: url('../assets/fonts/spline-sans-mono-400.woff2') format('woff2');
 }
 
 @font-face {
@@ -38,7 +40,7 @@
 	font-style: normal;
 	font-weight: 600;
 	font-display: swap;
-	src: url('/fonts/spline-sans-mono-600.woff2') format('woff2');
+	src: url('../assets/fonts/spline-sans-mono-600.woff2') format('woff2');
 }
 
 *,
