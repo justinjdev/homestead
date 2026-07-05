@@ -11,7 +11,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
-      - run: npm ci
+      # npm install (not ci): Vite/rolldown ships platform-specific native
+      # bindings as optionalDependencies, and a macOS-generated lockfile omits
+      # the Linux ones, which `npm ci` rejects. install reconciles per-platform.
+      - run: npm install --no-audit --no-fund
       - run: npm run test
       - run: npm run check
       - run: BASE_PATH=/homestead npm run build
