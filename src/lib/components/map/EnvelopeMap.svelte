@@ -9,6 +9,7 @@
 	import GuideLines from './GuideLines.svelte';
 	import ComboDots from './ComboDots.svelte';
 	import Probe from './Probe.svelte';
+	import Legend from './Legend.svelte';
 
 	const contourPolys = $derived(CONTOUR_TIMES.map((t) => region(app.finances, app.presets, app.stress, t)));
 	const currentPoly = $derived(region(app.finances, app.presets, app.stress, app.timeMonths));
@@ -54,6 +55,8 @@
 			<Probe {px} {py} xMax={dom.xMax} yMax={dom.yMax} />
 			<ComboDots {px} {py} />
 		</svg>
+
+		<Legend />
 
 		{#if emptyMessage}
 			<div class="empty-card">
