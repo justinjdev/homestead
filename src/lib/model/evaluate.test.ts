@@ -101,10 +101,10 @@ describe('evaluate', () => {
 		expect(ev.readyInMonths).toBe(0);
 		expect(ev.notReachableReason).toBe(null);
 
-		// incomeDrop margin: max d where capacity(I-d) >= monthlyCost
-		// d = min((comfortFrac*I - debt - monthlyCost)/comfortFrac, (I - expenses - debt - monthlyCost)/1)
-		// d = min((1800 - 1710.97)/0.30, (6000 - 3000 - 0 - 1710.97)/1)
-		// d = min(296.77, 1289.03) ≈ 296.77
+		// incomeDrop margin: max d where capacity(I-d) >= monthlyCost, three branches:
+		//   dFront = I - mc/comfortFrac; dBack = I - (mc+debt)/backEndFrac; dSolvency = I - expenses - debt - mc
+		// d = min(6000 - 1710.97/0.30, 6000 - (1710.97+0)/0.43, 6000 - 3000 - 0 - 1710.97)
+		//   = min(296.77, 2020.98, 1289.03) ≈ 296.77
 		expect(ev.margins.incomeDropMonthly).toBeCloseTo(296.77, 0);
 	});
 

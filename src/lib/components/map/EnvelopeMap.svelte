@@ -31,7 +31,8 @@
 			return { title: 'Income doesn’t cover expenses', body: 'The map needs a monthly surplus — income minus expenses is what funds any housing payment.' };
 		}
 		const insurance = `${fullDollar(app.presets.insuranceMonthly)}/mo`;
-		const budget = `${fullDollar(breakdown.capacity)}/mo`;
+		// Region is empty, so the budget can be ≤ 0; clamp so copy reads "$0/mo", not "$-20/mo".
+		const budget = `${fullDollar(Math.max(0, breakdown.capacity))}/mo`;
 		if (breakdown.binding === 'back-end') {
 			return {
 				title: 'Existing debt is the limit',
