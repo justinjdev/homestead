@@ -32,7 +32,7 @@ Adds the field, validation, and backfills every `FinanceProfile` literal/fixture
 - Modify: `src/lib/state/schema.ts` (`defaultState().finances`, `isFinancesValid`)
 - Test: `src/lib/state/schema.test.ts`
 - Modify (literals): `src/lib/model/evaluate.test.ts` (the base `finances` fixture AND the two full `FinanceProfile` literals added for DTI: `reported` in the `capacityBreakdown` block and `f` in test `(f)`), `src/lib/model/region.test.ts` (base `finances` fixture AND the inline literal in the debt>0 case `(e)`)
-- Modify (fixtures): the 6 visual fixtures with a `finances` block (`map-typical`, `income-below-expenses`, `stressed`, `map-cash-limited`, `panels-selected`, `map-empty-region`); NOT `default.json` (`state: null`)
+- Modify (fixtures): the 7 visual fixtures with a `finances` block (`map-typical`, `income-below-expenses`, `stressed`, `map-cash-limited`, `panels-selected`, `map-empty-region`, `back-end-debt-binds`); NOT `default.json` (`state: null`). The visual-QA harness auto-discovers every `*.json` in `tests/visual/states/`, so a missed fixture silently validates false and falls back to default state.
 
 **Interfaces:**
 - Produces: `FinanceProfile.rentalMonthly: number` — consumed by `countedRentMonthly` (Task 2) and the components (Tasks 3–4).
@@ -100,7 +100,7 @@ Add `rentalMonthly: 0,` to every full `FinanceProfile` literal. In `src/lib/mode
 
 - [ ] **Step 6: Backfill the 6 visual fixtures**
 
-In each of `tests/visual/states/{map-typical,income-below-expenses,stressed,map-cash-limited,panels-selected,map-empty-region}.json`, add `"rentalMonthly": 0` to the `finances` object (after `"backEndFrac"`). Example:
+In each of `tests/visual/states/{map-typical,income-below-expenses,stressed,map-cash-limited,panels-selected,map-empty-region,back-end-debt-binds}.json`, add `"rentalMonthly": 0` to the `finances` object (after `"backEndFrac"`). Example:
 
 ```json
 			"comfortFrac": 0.3,
