@@ -1,4 +1,4 @@
-# Homey — Autonomous Build System Design
+# Homestead — Autonomous Build System Design
 
 **Date:** 2026-07-05
 **Status:** Approved design
@@ -45,7 +45,7 @@ No custom agents are needed — only context and verification tooling.
    subagent. Encodes: zero runtime deps; model-module purity (no Svelte
    imports in `src/lib/model/`); Svelte 5 runes only; spec locations; test
    expectations (Vitest on model, golden amortization values); aesthetic
-   direction (surveyor/plat-map, no generic fonts); base path `/homey`.
+   direction (surveyor/plat-map, no generic fonts); base path `/homestead`.
 2. **Visual QA harness** (project skill + Playwright devDependency).
    Flow: start dev server → seed known app states via URL hash (already a
    product feature, doubles as the test hook) → screenshot each state →

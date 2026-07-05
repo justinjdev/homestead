@@ -1,4 +1,4 @@
-# Homey — Land + Tiny Home Affordability Map
+# Homestead — Land + Tiny Home Affordability Map
 
 **Date:** 2026-07-05
 **Status:** Approved design, pre-implementation
@@ -126,7 +126,7 @@ and region morphs. Detailed art direction happens at implementation.
 
 - SvelteKit + `adapter-static`, single prerendered route, Svelte 5 runes,
   TypeScript. Deployed to GitHub Pages via Actions workflow
-  (base path `/homey`).
+  (base path `/homestead`).
 - **Zero runtime dependencies** beyond Svelte/SvelteKit. Map is hand-rolled
   SVG. Hash encoding is JSON + base64url, no compression lib.
 - **Pure model module** `src/lib/model/` with no Svelte imports:

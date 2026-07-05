@@ -13,7 +13,7 @@ export default defineConfig({
 
 			adapter: adapter(),
 
-			// GitHub Pages serves the site under /homey; CI sets BASE_PATH.
+			// GitHub Pages serves the site under /homestead; CI sets BASE_PATH.
 			paths: {
 				base: process.env.BASE_PATH ?? ''
 			}
