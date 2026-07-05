@@ -9,8 +9,12 @@ const app: AppState = $state(defaultState());
 const pendingImport: { state: AppState | null } = $state({ state: null });
 const storageWarning: { active: boolean } = $state({ active: false });
 const linkWarning: { active: boolean } = $state({ active: false });
+const introSeen: { seen: boolean } = $state({ seen: false });
 
 const STORAGE_KEY = 'homestead:v1';
+// Device preference — a SEPARATE localStorage key, never part of AppState and
+// never encoded in the URL hash, so a shared link can never carry it.
+const INTRO_KEY = 'homestead:intro-seen';
 
 // Snapshot of the saved data captured when an import becomes pending, so
 // dismissImport() can revert the live app without ever having clobbered
@@ -42,6 +46,13 @@ function loadSaved(): AppState | null {
 }
 
 function initPersistence(): void {
+	// Device-local: has the first-visit intro been dismissed on this browser?
+	try {
+		if (localStorage.getItem(INTRO_KEY)) introSeen.seen = true;
+	} catch {
+		// Storage unavailable → treat as not seen; stays in memory only.
+	}
+
 	// 1. A valid URL hash beats localStorage (spec): apply it so it renders, but
 	//    keep it pending (keep/dismiss) and don't persist until accepted.
 	const hash = location.hash.slice(1); // strip leading #
@@ -101,6 +112,15 @@ function dismissImport(): void {
 	history.replaceState(null, '', location.pathname + location.search);
 }
 
+function dismissIntro(): void {
+	introSeen.seen = true;
+	try {
+		localStorage.setItem(INTRO_KEY, '1');
+	} catch {
+		// Storage unavailable → preference stays in memory for this session.
+	}
+}
+
 function shareUrl(): string {
 	return `${location.origin}${base}/#${encodeState(app)}`;
 }
@@ -143,9 +163,11 @@ export {
 	pendingImport,
 	storageWarning,
 	linkWarning,
+	introSeen,
 	initPersistence,
 	acceptImport,
 	dismissImport,
+	dismissIntro,
 	shareUrl,
 	addParcel,
 	addHome,
