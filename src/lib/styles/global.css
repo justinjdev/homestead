@@ -1,0 +1,121 @@
+/* Homestead global styles — plat-map field.
+   Self-hosted fonts (latin subset, font-display: swap). No runtime CDN. */
+
+@font-face {
+	font-family: 'Bricolage Grotesque';
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/fonts/bricolage-grotesque-700.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Besley';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/besley-400.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Besley';
+	font-style: italic;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/besley-600-italic.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Spline Sans Mono';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/spline-sans-mono-400.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: 'Spline Sans Mono';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/spline-sans-mono-600.woff2') format('woff2');
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--ink);
+	font-family: var(--font-body);
+	font-size: 16px;
+	line-height: 1.55;
+	/* Aged drafting paper with a faint surveyor's graph grid: two layered
+	   1px linear-gradients drawing hairlines on 24px cells. */
+	background-color: var(--paper);
+	background-image:
+		linear-gradient(to right, color-mix(in srgb, var(--ink) 5%, transparent) 1px, transparent 1px),
+		linear-gradient(to bottom, color-mix(in srgb, var(--ink) 5%, transparent) 1px, transparent 1px);
+	background-size: 24px 24px;
+	background-position: -1px -1px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	margin: 0 0 var(--space-3);
+	font-family: var(--font-display);
+	font-weight: 700;
+	line-height: 1.05;
+	/* cartouche feel: small-caps, letterspaced */
+	font-variant-caps: small-caps;
+	letter-spacing: 0.08em;
+	text-transform: lowercase;
+	color: var(--ink);
+}
+
+h1 {
+	font-size: clamp(2.4rem, 6vw, 4rem);
+	letter-spacing: 0.12em;
+}
+
+h2 {
+	font-size: 1.75rem;
+}
+
+h3 {
+	font-size: 1.3rem;
+}
+
+p {
+	margin: 0 0 var(--space-3);
+}
+
+a {
+	color: var(--edge-monthly);
+	text-underline-offset: 2px;
+}
+
+/* Every number in the app rides on the mono figure face. */
+.figures,
+.num {
+	font-family: var(--font-figures);
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: 'tnum' 1;
+}
+
+::selection {
+	background: color-mix(in srgb, var(--flag) 30%, transparent);
+}

@@ -1,0 +1,19 @@
+:root {
+	/* paper + ink */
+	--paper: #f4efe3;        /* aged drafting paper */
+	--paper-raised: #faf6ec;
+	--ink: #2b2a24;          /* warm near-black */
+	--ink-faint: #8a8574;
+	--line-survey: #6b7f5e;  /* contour/section-line green */
+	--region-fill: #6b7f5e26;
+	--edge-cash: #a8672f;    /* cash-constraint edge, burnt sienna */
+	--edge-monthly: #46628a; /* monthly-constraint edge, slate blue */
+	--flag: #c8442c;         /* stake-flag accent (out) */
+	--flag-in: #3d6b35;      /* stake-flag accent (in) */
+	--font-display: 'Bricolage Grotesque', serif;  /* headings, verdicts */
+	--font-body: 'Besley', serif;                  /* labels, prose */
+	--font-figures: 'Spline Sans Mono', monospace; /* all numbers */
+	--space-1: 4px; --space-2: 8px; --space-3: 16px; --space-4: 24px; --space-5: 40px;
+	--radius: 3px;
+	--hairline: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+}
