@@ -24,7 +24,8 @@ export function defaultState(): AppState {
 			cashOnHand: 40_000,
 			savingsMonthly: 1000,
 			comfortFrac: 0.30,
-			backEndFrac: 0.43
+			backEndFrac: 0.43,
+			rentalMonthly: 0
 		},
 		presets: {
 			land: { downFrac: 0.25, annualRatePct: 8.0, termMonths: 180 },
@@ -79,7 +80,8 @@ function isFinancesValid(f: unknown): f is FinanceProfile {
 		typeof o.backEndFrac === 'number' &&
 		Number.isFinite(o.backEndFrac) &&
 		o.backEndFrac > 0 &&
-		o.backEndFrac <= 1
+		o.backEndFrac <= 1 &&
+		isFiniteNonNeg(o.rentalMonthly)
 	);
 }
 

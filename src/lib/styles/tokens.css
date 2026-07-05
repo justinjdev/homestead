@@ -10,6 +10,7 @@
 	--edge-monthly: #46628a; /* monthly-constraint edge, slate blue */
 	--flag: #c8442c;         /* stake-flag accent (out) */
 	--flag-in: #3d6b35;      /* stake-flag accent (in) */
+	--edge-rental: #9c7a2e;  /* optimistic 'with rental income' edge, antique gold */
 	--font-display: 'Bricolage Grotesque', serif;  /* headings, verdicts */
 	--font-body: 'Besley', serif;                  /* labels, prose */
 	--font-figures: 'Spline Sans Mono', monospace; /* all numbers */

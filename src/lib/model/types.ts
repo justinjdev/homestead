@@ -7,6 +7,7 @@ export interface FinanceProfile {
 	savingsMonthly: number;
 	comfortFrac: number;      // front-end DTI: max share of income for the housing payment alone, default 0.30
 	backEndFrac: number;      // back-end DTI: max share of income for housing payment + existing debt, default 0.43
+	rentalMonthly: number;    // projected gross rental income $/mo (Airbnb etc.), default 0 = none
 }
 
 export interface LoanTerms {

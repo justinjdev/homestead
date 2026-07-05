@@ -49,6 +49,10 @@
 			<span>Savings / mo</span>
 			<input class="num" type="number" min="0" step="100" bind:value={app.finances.savingsMonthly} />
 		</label>
+		<label>
+			<span>Rental income / mo</span>
+			<input class="num" type="number" min="0" step="50" bind:value={app.finances.rentalMonthly} />
+		</label>
 		<label class="comfort">
 			<span>Comfort threshold <em class="num">{comfortPct}%</em></span>
 			<input type="range" min="0.15" max="0.5" step="0.01" bind:value={app.finances.comfortFrac} />

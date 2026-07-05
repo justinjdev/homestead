@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clipQuadrant, region, regionConstraints } from './region';
+import { clipQuadrant, region, regionConstraints, SITE_WORK_FRAC } from './region';
 import type { FinanceProfile, Presets, Stress } from './types';
 
 const defaultPresets: Presets = {
@@ -21,6 +21,7 @@ const finances: FinanceProfile = {
 	savingsMonthly: 1000,
 	comfortFrac: 0.30,
 	backEndFrac: 0.43,
+	rentalMonthly: 0,
 };
 
 describe('clipQuadrant', () => {
@@ -150,6 +151,28 @@ describe('region', () => {
 		expect(onLine(cash) || onLine(monthly)).toBe(true);
 	});
 
+	it('rentalOffsetMonthly shifts monthly.c up and leaves cash.c unchanged', () => {
+		const base = regionConstraints(finances, defaultPresets, zeroStress, 0);
+		const withRent = regionConstraints(finances, defaultPresets, zeroStress, 0, SITE_WORK_FRAC, 500);
+		expect(withRent.monthly.c).toBeCloseTo(base.monthly.c + 500, 6);
+		expect(withRent.cash.c).toBeCloseTo(base.cash.c, 6);
+	});
+
+	it('rental offset expands the region area (monthly constraint binds)', () => {
+		const area = (poly: [number, number][]) => {
+			let a = 0;
+			for (let i = 0; i < poly.length; i++) {
+				const [x1, y1] = poly[i];
+				const [x2, y2] = poly[(i + 1) % poly.length];
+				a += x1 * y2 - x2 * y1;
+			}
+			return Math.abs(a) / 2;
+		};
+		const base = region(finances, defaultPresets, zeroStress, 0);
+		const withRent = region(finances, defaultPresets, zeroStress, 0, SITE_WORK_FRAC, 800);
+		expect(area(withRent)).toBeGreaterThan(area(base));
+	});
+
 	it('polygon order is CCW, starting near [0,0]', () => {
 		const poly = region(finances, defaultPresets, zeroStress, 0);
 		expect(poly.length).toBeGreaterThan(0);
@@ -173,6 +196,7 @@ describe('region', () => {
 		const f: FinanceProfile = {
 			incomeMonthly: 12_916, expensesMonthly: 1_378, debtMonthly: 4_266,
 			cashOnHand: 90_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+			rentalMonthly: 0,
 		};
 		// capacity ≈ 1287.88 > insurance 100 → the monthly constraint admits area
 		const poly = region(f, defaultPresets, zeroStress, 0);

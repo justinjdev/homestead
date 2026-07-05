@@ -39,6 +39,14 @@ export function capacity(finances: FinanceProfile, stress: Stress): number {
 	return capacityBreakdown(finances, stress).capacity;
 }
 
+/** Fraction of projected rental income counted toward affordability (lender 25% vacancy factor). */
+export const RENT_COUNTED_FRAC = 0.75;
+
+/** Counted monthly rental income: RENT_COUNTED_FRAC × gross rentalMonthly. */
+export function countedRentMonthly(finances: FinanceProfile): number {
+	return RENT_COUNTED_FRAC * finances.rentalMonthly;
+}
+
 /**
  * Full evaluation for a parcel + home combination at a given time horizon.
  *

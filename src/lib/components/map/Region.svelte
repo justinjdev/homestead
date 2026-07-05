@@ -1,11 +1,25 @@
 <script lang="ts">
 	import { app } from '$lib/state/store.svelte';
-	import { region, regionConstraints } from '$lib/model';
+	import { region, regionConstraints, SITE_WORK_FRAC } from '$lib/model';
 
-	let { px, py }: { px: (v: number) => number; py: (v: number) => number } = $props();
+	let {
+		px,
+		py,
+		rentalOffsetMonthly = 0,
+		variant = 'baseline'
+	}: {
+		px: (v: number) => number;
+		py: (v: number) => number;
+		rentalOffsetMonthly?: number;
+		variant?: 'baseline' | 'optimistic';
+	} = $props();
 
-	const poly = $derived(region(app.finances, app.presets, app.stress, app.timeMonths));
-	const cons = $derived(regionConstraints(app.finances, app.presets, app.stress, app.timeMonths));
+	const poly = $derived(
+		region(app.finances, app.presets, app.stress, app.timeMonths, SITE_WORK_FRAC, rentalOffsetMonthly)
+	);
+	const cons = $derived(
+		regionConstraints(app.finances, app.presets, app.stress, app.timeMonths, SITE_WORK_FRAC, rentalOffsetMonthly)
+	);
 
 	const fillPath = $derived(
 		poly.length >= 3
@@ -24,7 +38,7 @@
 	}
 
 	const edges = $derived.by((): Edge[] => {
-		if (poly.length < 3) return [];
+		if (variant === 'optimistic' || poly.length < 3) return [];
 		const out: Edge[] = [];
 		for (let i = 0; i < poly.length; i++) {
 			const [ax, ay] = poly[i];
@@ -39,12 +53,16 @@
 </script>
 
 {#if fillPath}
-	<path class="region-fill" d={fillPath} />
-	{#each edges as e, i (i)}
-		{#if e.kind !== 'axis'}
-			<line class="edge {e.kind}" x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
-		{/if}
-	{/each}
+	{#if variant === 'optimistic'}
+		<path class="outline optimistic" d={fillPath} />
+	{:else}
+		<path class="region-fill" d={fillPath} />
+		{#each edges as e, i (i)}
+			{#if e.kind !== 'axis'}
+				<line class="edge {e.kind}" x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} />
+			{/if}
+		{/each}
+	{/if}
 {/if}
 
 <style>
@@ -52,4 +70,12 @@
 	.edge { stroke-width: 2.5; stroke-linecap: round; transition: x1 0.45s ease, y1 0.45s ease, x2 0.45s ease, y2 0.45s ease; }
 	.edge.cash { stroke: var(--edge-cash); }
 	.edge.monthly { stroke: var(--edge-monthly); }
+	.outline.optimistic {
+		fill: none;
+		stroke: var(--edge-rental);
+		stroke-width: 2;
+		stroke-dasharray: 5 4;
+		stroke-linejoin: round;
+		transition: d 0.45s ease;
+	}
 </style>

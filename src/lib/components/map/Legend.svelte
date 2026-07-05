@@ -2,6 +2,7 @@
 	// Cartographic KEY for the affordability map. Rendered as a horizontal strip
 	// directly beneath the plot (outside the SVG) so it never overlaps any mark,
 	// guide line, or the empty-state card in any fixture.
+	import { app } from '$lib/state/store.svelte';
 </script>
 
 <figure class="legend" aria-label="Map key">
@@ -19,6 +20,12 @@
 			<span class="swatch line monthly" aria-hidden="true"></span>
 			<span class="legend-label">Monthly limit — payments + tax + insurance</span>
 		</li>
+		{#if app.finances.rentalMonthly > 0}
+			<li>
+				<span class="swatch line rental" aria-hidden="true"></span>
+				<span class="legend-label">With rental income</span>
+			</li>
+		{/if}
 		<li>
 			<span class="swatch line survey" aria-hidden="true"></span>
 			<span class="legend-label">As you save · now → 24 mo</span>
@@ -106,6 +113,9 @@
 	}
 	.swatch.line.monthly {
 		border-top-color: var(--edge-monthly);
+	}
+	.swatch.line.rental {
+		border-top: 2px dashed var(--edge-rental);
 	}
 	.swatch.line.survey {
 		border-top-width: 1.5px;

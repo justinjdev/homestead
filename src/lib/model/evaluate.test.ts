@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { capacity, capacityBreakdown, evaluate } from './evaluate';
+import { capacity, capacityBreakdown, countedRentMonthly, evaluate } from './evaluate';
 import { comboCosts } from './costs';
 import type { FinanceProfile, HomeOption, Parcel, Presets, Stress } from './types';
 
@@ -25,6 +25,7 @@ const finances: FinanceProfile = {
 	savingsMonthly: 1000,
 	comfortFrac: 0.30,
 	backEndFrac: 0.43,
+	rentalMonthly: 0,
 };
 
 describe('capacity', () => {
@@ -50,6 +51,7 @@ describe('capacityBreakdown', () => {
 	const reported: FinanceProfile = {
 		incomeMonthly: 12_916, expensesMonthly: 1_378, debtMonthly: 4_266,
 		cashOnHand: 90_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+		rentalMonthly: 0,
 	};
 
 	it('reported profile: back-end binds at +$1,287.88 (was −$391)', () => {
@@ -79,6 +81,15 @@ describe('capacityBreakdown', () => {
 		const b = capacityBreakdown(f, zeroStress);
 		expect(b.binding).toBe('solvency');
 		expect(b.capacity).toBe(800);
+	});
+});
+
+describe('countedRentMonthly', () => {
+	it('counts 75% of rentalMonthly', () => {
+		expect(countedRentMonthly({ ...finances, rentalMonthly: 2000 })).toBe(1500);
+	});
+	it('is 0 when rentalMonthly is 0', () => {
+		expect(countedRentMonthly(finances)).toBe(0);
 	});
 });
 
@@ -198,6 +209,7 @@ describe('evaluate', () => {
 		const f: FinanceProfile = {
 			incomeMonthly: 9_000, expensesMonthly: 3_000, debtMonthly: 1_500,
 			cashOnHand: 200_000, savingsMonthly: 1_200, comfortFrac: 0.30, backEndFrac: 0.43,
+			rentalMonthly: 0,
 		};
 		const ev = evaluate(f, parcel, home, defaultPresets, zeroStress, 0);
 		expect(ev.monthlyOk).toBe(true);

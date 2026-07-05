@@ -1,16 +1,16 @@
 {
-	"name": "map-empty-region",
+	"name": "rental-rescues",
 	"state": {
 		"v": 1,
 		"finances": {
 			"incomeMonthly": 6000,
-			"expensesMonthly": 7000,
-			"debtMonthly": 0,
-			"cashOnHand": 90000,
+			"expensesMonthly": 1000,
+			"debtMonthly": 2600,
+			"cashOnHand": 40000,
 			"savingsMonthly": 1000,
 			"comfortFrac": 0.3,
 			"backEndFrac": 0.43,
-			"rentalMonthly": 0
+			"rentalMonthly": 800
 		},
 		"presets": {
 			"land": { "downFrac": 0.25, "annualRatePct": 8.0, "termMonths": 180 },
@@ -19,18 +19,12 @@
 			"taxAnnualPct": 1.0,
 			"insuranceMonthly": 100
 		},
-		"parcels": [
-			{ "id": "p1", "name": "Ridge 5ac", "landPrice": 80000 },
-			{ "id": "p2", "name": "Creek 10ac", "landPrice": 140000 }
-		],
-		"homes": [
-			{ "id": "h1", "name": "Escape One", "homeCost": 100000, "siteWork": 40000 },
-			{ "id": "h2", "name": "Used park model", "homeCost": 55000, "siteWork": 35000 }
-		],
-		"muted": ["p2:h2"],
-		"selected": "p1:h1",
+		"parcels": [{ "id": "p1", "name": "Ridge 5ac", "landPrice": 80000 }],
+		"homes": [{ "id": "h1", "name": "Escape One", "homeCost": 100000, "siteWork": 40000 }],
+		"muted": [],
+		"selected": null,
 		"stress": { "rateDeltaPct": 0, "siteWorkOverrunFrac": 0, "incomeDropMonthly": 0 },
-		"timeMonths": 6
+		"timeMonths": 0
 	},
 	"viewport": { "width": 1440, "height": 900 }
 }
