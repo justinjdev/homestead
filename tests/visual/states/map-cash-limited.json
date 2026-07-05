@@ -1,0 +1,34 @@
+{
+	"name": "map-cash-limited",
+	"state": {
+		"v": 1,
+		"finances": {
+			"incomeMonthly": 6500,
+			"expensesMonthly": 3000,
+			"debtMonthly": 0,
+			"cashOnHand": 55000,
+			"savingsMonthly": 2000,
+			"comfortFrac": 0.3
+		},
+		"presets": {
+			"land": { "downFrac": 0.25, "annualRatePct": 8.0, "termMonths": 180 },
+			"home": { "downFrac": 0.15, "annualRatePct": 9.5, "termMonths": 180 },
+			"closingFrac": 0.03,
+			"taxAnnualPct": 1.0,
+			"insuranceMonthly": 100
+		},
+		"parcels": [
+			{ "id": "p1", "name": "Meadow 5ac", "landPrice": 60000 },
+			{ "id": "p2", "name": "Ridge 12ac", "landPrice": 110000 }
+		],
+		"homes": [
+			{ "id": "h1", "name": "Cabin kit", "homeCost": 70000, "siteWork": 20000 },
+			{ "id": "h2", "name": "Timber lodge", "homeCost": 95000, "siteWork": 38000 }
+		],
+		"muted": [],
+		"selected": "p2:h2",
+		"stress": { "rateDeltaPct": 0, "siteWorkOverrunFrac": 0, "incomeDropMonthly": 0 },
+		"timeMonths": 12
+	},
+	"viewport": { "width": 1440, "height": 900 }
+}
