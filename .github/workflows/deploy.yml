@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 22, cache: npm }
+        with: { node-version: 24, cache: npm }
       # npm install (not ci): Vite/rolldown ships platform-specific native
       # bindings as optionalDependencies, and a macOS-generated lockfile omits
       # the Linux ones, which `npm ci` rejects. install reconciles per-platform.
